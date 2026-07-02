@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ledger of Ideas — Expense Tracker Brainstorm, 2026-07-01</title>
+<style>
+  :root{
+    --paper:#faf6ec;
+    --paper-line:#e3d9bd;
+    --ink:#2b2620;
+    --ink-soft:#5a5140;
+    --ledger-red:#a83c3c;
+    --ledger-green:#2f6b4f;
+    --gold:#b8873b;
+    --card:#fffdf6;
+    --shadow:0 2px 10px rgba(60,45,20,0.12);
+    --must:#2f6b4f;
+    --should:#3d6ea5;
+    --could:#b8873b;
+    --wont:#8a3b3b;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family: Georgia, 'Times New Roman', serif;
+    background:
+      repeating-linear-gradient(var(--paper) 0px, var(--paper) 27px, var(--paper-line) 28px),
+      var(--paper);
+    color: var(--ink);
+    line-height:1.5;
+    padding-bottom:80px;
+  }
+  .receipt-margin::before{
+    content:"";
+    position:fixed;
+    top:0; bottom:0; left:64px;
+    width:2px;
+    background: rgba(168,60,60,0.25);
+    z-index:0;
+  }
+  header.masthead{
+    position:relative;
+    z-index:1;
+    text-align:center;
+    padding:70px 20px 50px;
+  }
+  header.masthead .stamp{
+    display:inline-block;
+    border:3px double var(--ledger-red);
+    color:var(--ledger-red);
+    padding:6px 18px;
+    font-family: 'Courier New', monospace;
+    letter-spacing:3px;
+    font-size:12px;
+    transform:rotate(-3deg);
+    margin-bottom:18px;
+  }
+  header.masthead h1{
+    font-size:44px;
+    margin:0 0 8px;
+    letter-spacing:1px;
+  }
+  header.masthead .receipt-line{
+    font-family:'Courier New', monospace;
+    color:var(--ink-soft);
+    font-size:13px;
+    letter-spacing:2px;
+  }
+  header.masthead .subtitle{
+    max-width:640px;
+    margin:18px auto 0;
+    color:var(--ink-soft);
+    font-style:italic;
+    font-size:16px;
+  }
+  .divider{
+    text-align:center;
+    color:var(--gold);
+    font-size:20px;
+    letter-spacing:12px;
+    margin:10px 0 40px;
+  }
+  section{
+    max-width:980px;
+    margin:0 auto 70px;
+    padding:0 24px;
+    position:relative;
+    z-index:1;
+  }
+  .section-tag{
+    display:inline-block;
+    background:var(--ink);
+    color:var(--paper);
+    font-family:'Courier New', monospace;
+    font-size:12px;
+    letter-spacing:2px;
+    padding:4px 12px;
+    border-radius:2px;
+    margin-bottom:10px;
+  }
+  h2.section-title{
+    font-size:30px;
+    margin:0 0 6px;
+    border-bottom:2px solid var(--ink);
+    padding-bottom:10px;
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    gap:20px;
+  }
+  h2.section-title .deco{ font-size:20px; color:var(--gold); }
+  .section-intro{
+    color:var(--ink-soft);
+    max-width:720px;
+    margin:14px 0 30px;
+  }
+
+  /* ---------- SCAMPER ---------- */
+  .scamper-wrap{
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+  }
+  details.lens{
+    background:var(--card);
+    border:1px solid var(--paper-line);
+    border-left:6px solid var(--gold);
+    border-radius:4px;
+    box-shadow: var(--shadow);
+    overflow:hidden;
+  }
+  details.lens[open]{ border-left-color: var(--ledger-red); }
+  details.lens summary{
+    cursor:pointer;
+    list-style:none;
+    padding:16px 20px;
+    display:flex;
+    align-items:center;
+    gap:16px;
+    font-weight:bold;
+    font-size:17px;
+  }
+  details.lens summary::-webkit-details-marker{ display:none; }
+  details.lens summary .letter{
+    font-family:'Courier New', monospace;
+    font-size:26px;
+    color:var(--gold);
+    width:38px;
+    text-align:center;
+    flex-shrink:0;
+  }
+  details.lens summary::after{
+    content:"+";
+    margin-left:auto;
+    font-size:22px;
+    color:var(--ink-soft);
+  }
+  details.lens[open] summary::after{ content:"–"; }
+  details.lens .lens-body{
+    padding:0 20px 20px 74px;
+    color:var(--ink-soft);
+  }
+  details.lens .lens-body p{
+    margin:8px 0;
+    padding-left:14px;
+    border-left:3px solid var(--paper-line);
+  }
+  details.lens .lens-body p.empty{
+    font-style:italic;
+    opacity:0.7;
+  }
+
+  /* ---------- Mind Map ---------- */
+  .mindmap{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:0;
+  }
+  .central-topic{
+    background: var(--ink);
+    color:var(--paper);
+    padding:16px 30px;
+    border-radius:50px;
+    font-size:20px;
+    font-weight:bold;
+    box-shadow:var(--shadow);
+    text-align:center;
+  }
+  .branch-stem{
+    width:2px; height:26px; background:var(--gold);
+  }
+  .branches{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:18px;
+    width:100%;
+    margin-top:0;
+  }
+  .branch{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+  }
+  .branch-head{
+    background:var(--card);
+    border:2px solid var(--ledger-green);
+    color:var(--ledger-green);
+    font-weight:bold;
+    padding:10px 16px;
+    border-radius:8px;
+    text-align:center;
+    box-shadow:var(--shadow);
+    width:100%;
+  }
+  .branch-children{
+    margin-top:12px;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    width:100%;
+  }
+  .leaf{
+    background:var(--paper);
+    border:1px dashed var(--gold);
+    border-radius:20px;
+    padding:8px 12px;
+    font-size:13.5px;
+    text-align:center;
+    color:var(--ink-soft);
+    position:relative;
+  }
+  .leaf.highlight{
+    border-style:solid;
+    border-color:var(--ledger-red);
+    color:var(--ledger-red);
+    font-weight:bold;
+    background:#fff3f0;
+  }
+  .sub-leaf-group{
+    margin-top:4px;
+    padding:8px;
+    background:rgba(184,135,59,0.08);
+    border-radius:8px;
+    font-size:12.5px;
+    color:var(--ink-soft);
+  }
+  @media (max-width:800px){
+    .branches{ grid-template-columns:repeat(2,1fr); }
+  }
+
+  /* ---------- HMW ---------- */
+  .hmw-list{
+    display:flex;
+    flex-direction:column;
+    gap:16px;
+  }
+  .hmw-card{
+    background:var(--card);
+    border:1px solid var(--paper-line);
+    border-radius:6px;
+    padding:18px 22px;
+    box-shadow:var(--shadow);
+    position:relative;
+    font-size:16px;
+  }
+  .hmw-card .qmark{
+    font-family:Georgia, serif;
+    font-size:40px;
+    color:var(--paper-line);
+    position:absolute;
+    top:6px; left:12px;
+    line-height:1;
+  }
+  .hmw-card .qtext{ margin-left:38px; }
+  .hmw-card.chosen{
+    border:2px solid var(--ledger-red);
+    background:#fff8f4;
+  }
+  .hmw-card.chosen::after{
+    content:"CHOSEN — sharpest question";
+    position:absolute;
+    top:-11px; right:16px;
+    background:var(--ledger-red);
+    color:#fff;
+    font-family:'Courier New', monospace;
+    font-size:11px;
+    letter-spacing:1px;
+    padding:3px 10px;
+    border-radius:10px;
+  }
+  .hmw-card .qmark.chosen-mark{ color:var(--ledger-red); }
+  .hmw-rationale{
+    margin-top:8px;
+    font-size:13.5px;
+    color:var(--ink-soft);
+    font-style:italic;
+    margin-left:38px;
+  }
+  .ideation-arrow{
+    text-align:center;
+    color:var(--gold);
+    font-size:22px;
+    margin:6px 0;
+  }
+  .ideation-row{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:14px;
+  }
+  .idea-chip{
+    background:var(--card);
+    border:1px solid var(--gold);
+    border-radius:10px;
+    padding:14px;
+    font-size:13.5px;
+    box-shadow:var(--shadow);
+  }
+  .idea-chip .chip-label{
+    display:block;
+    font-family:'Courier New', monospace;
+    font-size:10.5px;
+    letter-spacing:1px;
+    color:var(--gold);
+    margin-bottom:6px;
+  }
+  @media (max-width:760px){ .ideation-row{ grid-template-columns:1fr; } }
+
+  /* ---------- MoSCoW board ---------- */
+  .moscow-board{
+    display:grid;
+    grid-template-columns:150px repeat(4,1fr);
+    gap:1px;
+    background:var(--paper-line);
+    border:1px solid var(--paper-line);
+    border-radius:6px;
+    overflow:hidden;
+    box-shadow:var(--shadow);
+  }
+  .moscow-board > div{
+    background:var(--card);
+    padding:12px;
+    font-size:12.5px;
+  }
+  .moscow-board .corner{ background:var(--ink); }
+  .moscow-board .col-head{
+    background:var(--ink);
+    color:var(--paper);
+    text-align:center;
+    font-weight:bold;
+    letter-spacing:1px;
+    font-family:'Courier New', monospace;
+    font-size:13px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .moscow-board .row-head{
+    background:#efe6d0;
+    font-weight:bold;
+    display:flex;
+    align-items:center;
+    font-size:13px;
+    color:var(--ink);
+  }
+  .moscow-cell{ position:relative; }
+  .moscow-cell.must{ border-top:4px solid var(--must); }
+  .moscow-cell.should{ border-top:4px solid var(--should); }
+  .moscow-cell.could{ border-top:4px solid var(--could); }
+  .moscow-cell.wont{ border-top:4px solid var(--wont); color:var(--ink-soft); font-style:italic; }
+  .moscow-legend{
+    display:flex;
+    gap:18px;
+    flex-wrap:wrap;
+    margin:14px 0 22px;
+    font-size:12.5px;
+  }
+  .moscow-legend span{ display:flex; align-items:center; gap:6px; }
+  .moscow-legend i{
+    width:14px;height:14px;border-radius:3px;display:inline-block;
+  }
+  @media (max-width:900px){
+    .moscow-board{ grid-template-columns:1fr; }
+    .moscow-board .col-head, .moscow-board .row-head{ text-align:left; justify-content:flex-start; }
+  }
+
+  /* ---------- Synthesis climax ---------- */
+  .synthesis{
+    max-width:1100px;
+    margin:20px auto 90px;
+    padding:0 20px;
+  }
+  .synthesis-frame{
+    background: linear-gradient(160deg, #1f2b22 0%, #2b3a2c 55%, #1f2b22 100%);
+    border-radius:18px;
+    padding:50px 40px;
+    color:#f4ecd8;
+    box-shadow: 0 20px 60px rgba(20,30,15,0.4);
+    position:relative;
+    overflow:hidden;
+  }
+  .synthesis-frame::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:
+      radial-gradient(circle at 15% 20%, rgba(255,215,140,0.10), transparent 40%),
+      radial-gradient(circle at 85% 80%, rgba(255,215,140,0.08), transparent 45%);
+    pointer-events:none;
+  }
+  .synthesis-frame h2{
+    text-align:center;
+    font-size:34px;
+    margin:0 0 6px;
+    color:#f6d98a;
+    letter-spacing:1px;
+  }
+  .synthesis-frame .sub{
+    text-align:center;
+    color:#cfd9c8;
+    font-style:italic;
+    margin-bottom:36px;
+  }
+  .thread-map{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:16px;
+    margin-bottom:40px;
+  }
+  .thread{
+    background:rgba(255,255,255,0.06);
+    border:1px solid rgba(246,217,138,0.35);
+    border-radius:10px;
+    padding:16px 18px;
+    max-width:230px;
+    font-size:13px;
+    line-height:1.55;
+  }
+  .thread .thread-title{
+    display:block;
+    color:#f6d98a;
+    font-weight:bold;
+    font-family:'Courier New', monospace;
+    font-size:12px;
+    letter-spacing:1px;
+    margin-bottom:6px;
+  }
+  .verdict{
+    background:rgba(0,0,0,0.25);
+    border-left:4px solid #f6d98a;
+    border-radius:8px;
+    padding:22px 26px;
+    margin-bottom:30px;
+  }
+  .verdict p{ margin:0 0 12px; }
+  .verdict p:last-child{ margin-bottom:0; }
+  .verdict .label{
+    color:#f6d98a;
+    font-family:'Courier New', monospace;
+    font-size:11.5px;
+    letter-spacing:2px;
+    display:block;
+    margin-bottom:4px;
+  }
+  .roadmap-strip{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:16px;
+  }
+  .roadmap-strip .stop{
+    text-align:center;
+    background:rgba(255,255,255,0.05);
+    border:1px solid rgba(246,217,138,0.25);
+    border-radius:10px;
+    padding:18px 12px;
+  }
+  .roadmap-strip .stop .flag{ font-size:26px; display:block; margin-bottom:8px; }
+  .roadmap-strip .stop h4{ margin:0 0 6px; color:#f6d98a; font-size:14px; letter-spacing:1px;}
+  .roadmap-strip .stop p{ margin:0; font-size:12.5px; color:#dfe6d6; }
+  @media (max-width:760px){
+    .roadmap-strip{ grid-template-columns:1fr; }
+  }
+
+  footer{
+    text-align:center;
+    color:var(--ink-soft);
+    font-family:'Courier New', monospace;
+    font-size:11.5px;
+    letter-spacing:1px;
+    padding:20px;
+    position:relative;
+    z-index:1;
+  }
+  .receipt-perf{
+    text-align:center;
+    letter-spacing:6px;
+    color:var(--paper-line);
+    font-size:14px;
+    margin:0 0 20px;
+  }
+</style>
+</head>
+<body class="receipt-margin">
+
+<header class="masthead">
+  <div class="stamp">SESSION LOGGED &amp; CLOSED</div>
+  <h1>The Ledger of Ideas</h1>
+  <div class="receipt-line">EXPENSE TRACKER FEATURE BRAINSTORM · 2026-07-01 · FACILITATOR MODE</div>
+  <p class="subtitle">A keepsake of the session that shaped a beginner-friendly, BMAD-learning Expense Tracker web app —
+  built through SCAMPER, Mind Mapping, How Might We, and a MoSCoW convergence.</p>
+</header>
+<div class="divider">⸙ ⸙ ⸙</div>
+
+<!-- ================= SCAMPER ================= -->
+<section id="scamper">
+  <span class="section-tag">TECHNIQUE 01</span>
+  <h2 class="section-title">SCAMPER <span class="deco">seven lenses on one idea</span></h2>
+  <p class="section-intro">Each lens turned the same core concept — a simple expense tracker — a little differently,
+  surfacing a feature or a deliberate cut. Click a lens to reveal what it found.</p>
+
+  <div class="scamper-wrap">
+    <details class="lens" open>
+      <summary><span class="letter">S</span> Substitute</summary>
+      <div class="lens-body">
+        <p>MVP expense entry requires only <strong>amount, category, and date</strong>; all other fields are optional — substituting a long form for the bare minimum needed to log a spend.</p>
+      </div>
+    </details>
+
+    <details class="lens">
+      <summary><span class="letter">C</span> Combine</summary>
+      <div class="lens-body">
+        <p>Combine the tracker with a <strong>monthly budget tracker</strong>: per-category budget limits with a spent-vs-remaining view.</p>
+      </div>
+    </details>
+
+    <details class="lens">
+      <summary><span class="letter">A</span> Adapt</summary>
+      <div class="lens-body">
+        <p>Adapt the <strong>fitness-app streak</strong> mechanic: a logging-streak counter for consecutive days of expense entry, to build the habit of daily logging.</p>
+      </div>
+    </details>
+
+    <details class="lens">
+      <summary><span class="letter">M</span> Modify</summary>
+      <div class="lens-body">
+        <p>Modify the plain data view into a <strong>visual dashboard</strong>: summary cards (Today's Spending, This Month's Spending, Remaining Budget) plus a pie chart by category and a bar chart by month — with detailed tables still available underneath.</p>
+      </div>
+    </details>
+
+    <details class="lens">
+      <summary><span class="letter">P</span> Put to other use</summary>
+      <div class="lens-body">
+        <p><strong>Reuse expense data</strong> for monthly insights: top spending categories, month-over-month comparison, and save-money suggestions — the same records, put to a new purpose.</p>
+      </div>
+    </details>
+
+    <details class="lens">
+      <summary><span class="letter">E</span> Eliminate</summary>
+      <div class="lens-body">
+        <p>Eliminate for v1: <strong>bank account sync</strong> and <strong>receipt photo uploads</strong> — keep entry fully manual so the team can focus on the core features first.</p>
+      </div>
+    </details>
+
+    <details class="lens">
+      <summary><span class="letter">R</span> Reverse</summary>
+      <div class="lens-body">
+        <p>Reverse the flow: instead of the user chasing the app, an <strong>evening daily reminder notification</strong> prompts the user to log today's expenses, reinforcing the streak.</p>
+      </div>
+    </details>
+  </div>
+</section>
+
+<!-- ================= MIND MAPPING ================= -->
+<section id="mindmap-section">
+  <span class="section-tag">TECHNIQUE 02</span>
+  <h2 class="section-title">Mind Mapping <span class="deco">branching the whole app</span></h2>
+  <p class="section-intro">Starting from the central topic, the session branched into four top-level areas —
+  Expenses, Categories, Dashboard, and Budget — each unfolding its own children.</p>
+
+  <div class="mindmap">
+    <div class="central-topic">Expense Tracker</div>
+    <div class="branch-stem"></div>
+    <div class="branches">
+
+      <div class="branch">
+        <div class="branch-head">Expenses (CRUD)</div>
+        <div class="branch-children">
+          <div class="leaf">Add</div>
+          <div class="leaf">Edit</div>
+          <div class="leaf">Delete</div>
+          <div class="leaf">View</div>
+          <div class="leaf">Search</div>
+          <div class="leaf">Filter</div>
+          <div class="sub-leaf-group">
+            Filter → by date range, category, amount range<br>
+            Search → by expense description
+          </div>
+        </div>
+      </div>
+
+      <div class="branch">
+        <div class="branch-head">Categories</div>
+        <div class="branch-children">
+          <div class="leaf">Name + optional icon per category</div>
+          <div class="leaf">Default set (Food, Transport, Shopping, Bills, Entertainment)</div>
+          <div class="leaf">Fully custom categories (add/edit/delete)</div>
+        </div>
+      </div>
+
+      <div class="branch">
+        <div class="branch-head">Dashboard</div>
+        <div class="branch-children">
+          <div class="leaf">Summary cards: Today / This Month / Remaining</div>
+          <div class="leaf">Pie chart by category</div>
+          <div class="leaf">Bar chart by month</div>
+          <div class="leaf">Detailed tables</div>
+        </div>
+      </div>
+
+      <div class="branch">
+        <div class="branch-head">Budget</div>
+        <div class="branch-children">
+          <div class="leaf">Set monthly budget</div>
+          <div class="leaf">View spent amount</div>
+          <div class="leaf">View remaining</div>
+          <div class="leaf highlight">Within/over-budget status → card turns red + warning when over budget</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ================= HOW MIGHT WE ================= -->
+<section id="hmw">
+  <span class="section-tag">TECHNIQUE 03</span>
+  <h2 class="section-title">How Might We <span class="deco">three questions, one chosen</span></h2>
+  <p class="section-intro">Three opportunity questions surfaced. The sharpest one was chosen as the foundation
+  everything else depends on, and ideated against directly.</p>
+
+  <div class="hmw-list">
+    <div class="hmw-card chosen">
+      <span class="qmark chosen-mark">“</span>
+      <div class="qtext">HMW make expense tracking <strong>simple and quick</strong> so users consistently record daily expenses and understand their spending without feeling overwhelmed?</div>
+      <div class="hmw-rationale">Chosen because consistent data entry is the foundation the dashboard and budget features both depend on.</div>
+    </div>
+    <div class="hmw-card">
+      <span class="qmark">“</span>
+      <div class="qtext">HMW help users stay within their monthly budget by giving clear, timely feedback about their spending?</div>
+    </div>
+    <div class="hmw-card">
+      <span class="qmark">“</span>
+      <div class="qtext">HMW encourage users to consistently log daily expenses by making the experience simple, rewarding, and easy to maintain over time?</div>
+    </div>
+  </div>
+
+  <div class="ideation-arrow">▼ ideated into ▼</div>
+
+  <div class="ideation-row">
+    <div class="idea-chip">
+      <span class="chip-label">SMART DEFAULTS</span>
+      Auto-select today's date and pre-fill the last-used category, minimizing the fields the user must touch.
+    </div>
+    <div class="idea-chip">
+      <span class="chip-label">DUPLICATE EXPENSE</span>
+      One click duplicates a past expense — just update the date — instead of building a full recurring-transactions engine.
+    </div>
+    <div class="idea-chip">
+      <span class="chip-label">FLOATING ADD BUTTON</span>
+      A persistent floating "Add Expense" button, visible on every page, for one-click access to the entry form.
+    </div>
+  </div>
+</section>
+
+<!-- ================= MOSCOW ================= -->
+<section id="moscow">
+  <span class="section-tag">CONVERGENCE</span>
+  <h2 class="section-title">MoSCoW Board <span class="deco">prioritizing across five groups</span></h2>
+  <p class="section-intro">Every idea generated above was converged into a single prioritization board across
+  five functional groups. Nothing in "Won't" is a gap — it is a deliberate line drawn during SCAMPER's Eliminate lens
+  and reinforced here.</p>
+
+  <div class="moscow-legend">
+    <span><i style="background:var(--must)"></i> Must</span>
+    <span><i style="background:var(--should)"></i> Should</span>
+    <span><i style="background:var(--could)"></i> Could</span>
+    <span><i style="background:var(--wont)"></i> Won't</span>
+  </div>
+
+  <div class="moscow-board">
+    <div class="corner"></div>
+    <div class="col-head">MUST</div>
+    <div class="col-head">SHOULD</div>
+    <div class="col-head">COULD</div>
+    <div class="col-head">WON'T</div>
+
+    <div class="row-head">Entry &amp; Data</div>
+    <div class="moscow-cell must">Minimal required fields (amount / category / date); search &amp; filter</div>
+    <div class="moscow-cell should">Smart defaults (today's date, last-used category)</div>
+    <div class="moscow-cell could">Duplicate a past expense</div>
+    <div class="moscow-cell wont">none</div>
+
+    <div class="row-head">Categories</div>
+    <div class="moscow-cell must">Default categories + add / edit / delete</div>
+    <div class="moscow-cell should">—</div>
+    <div class="moscow-cell could">Optional icons per category</div>
+    <div class="moscow-cell wont">none</div>
+
+    <div class="row-head">Budget</div>
+    <div class="moscow-cell must">Set monthly budget + spent / remaining / status view</div>
+    <div class="moscow-cell should">Red over-budget warning card</div>
+    <div class="moscow-cell could">—</div>
+    <div class="moscow-cell wont">none</div>
+
+    <div class="row-head">Dashboard</div>
+    <div class="moscow-cell must">Summary cards + detail table</div>
+    <div class="moscow-cell should">Pie chart + bar chart</div>
+    <div class="moscow-cell could">Monthly insights (top categories, MoM comparison, save-money suggestions)</div>
+    <div class="moscow-cell wont">none</div>
+
+    <div class="row-head">Engagement</div>
+    <div class="moscow-cell must">Floating "Add Expense" button</div>
+    <div class="moscow-cell should">—</div>
+    <div class="moscow-cell could">Daily logging streak counter</div>
+    <div class="moscow-cell wont">Evening reminder notification</div>
+  </div>
+</section>
+
+<!-- ================= SYNTHESIS CLIMAX ================= -->
+<section class="synthesis">
+  <div class="synthesis-frame">
+    <h2>Synthesis &amp; Direction</h2>
+    <div class="sub">Where the four techniques converged — and what gets built first</div>
+
+    <div class="thread-map">
+      <div class="thread">
+        <span class="thread-title">ONE ENGAGEMENT THEME</span>
+        Streak + duplicate expense + smart defaults are one consistency-focused thread: a <em>pull</em>, not a <em>push</em>,
+        engagement model — the reminder notification (a push) was deliberately left out.
+      </div>
+      <div class="thread">
+        <span class="thread-title">ONE REUSABLE COMPONENT</span>
+        The over-budget red warning card (Mind Mapping) and the dashboard summary cards (SCAMPER Modify) are the
+        same component with a color-state prop.
+      </div>
+      <div class="thread">
+        <span class="thread-title">ONE CHEAP V2 WIN</span>
+        Monthly insights (Could-have) reuse the same aggregation queries the MVP dashboard already needs —
+        making it the cheapest first V2 pick.
+      </div>
+      <div class="thread">
+        <span class="thread-title">ONE DELIBERATE BOUNDARY</span>
+        Bank sync, receipt uploads, and reminder notifications stay explicitly out of scope — manual-but-fast was
+        chosen over automatic-but-complex.
+      </div>
+    </div>
+
+    <div class="verdict">
+      <span class="label">CHOSEN DIRECTION</span>
+      <p>MVP = simple, fast, useful core: <strong>CRUD + budget + dashboard</strong>, built strictly from the MoSCoW
+      Must-haves first. The user deliberately chose manual-but-fast over automatic-but-complex.</p>
+      <p>Should- and Could-have items become the <strong>V2 roadmap</strong>. Won't-have items (bank sync, receipt
+      uploads, reminder notifications) remain explicitly out of scope.</p>
+    </div>
+
+    <div class="roadmap-strip">
+      <div class="stop">
+        <span class="flag">①</span>
+        <h4>MVP — MUST</h4>
+        <p>Minimal entry fields, search/filter, default categories with add/edit/delete, monthly budget with status view, dashboard summary cards + table, floating Add Expense button.</p>
+      </div>
+      <div class="stop">
+        <span class="flag">②</span>
+        <h4>V2 — SHOULD / COULD</h4>
+        <p>Smart defaults, red over-budget card, pie/bar charts, duplicate expense, category icons, monthly insights, logging streak.</p>
+      </div>
+      <div class="stop">
+        <span class="flag">③</span>
+        <h4>OUT OF SCOPE — WON'T</h4>
+        <p>Bank account sync, receipt photo uploads, evening reminder notifications.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="receipt-perf">✂ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ✂</div>
+<footer>
+  END OF SESSION LOG · FACILITATOR MODE · STATUS: COMPLETE · UPDATED 2026-07-01T15:05
+</footer>
+
+<script>
+  // Accordion-style behavior: keep all lenses independently toggleable (native <details>),
+  // but auto-scroll the opened lens into comfortable view on small screens.
+  document.querySelectorAll('details.lens').forEach(function(d){
+    d.addEventListener('toggle', function(){
+      if(d.open){
+        var rect = d.getBoundingClientRect();
+        if(rect.top < 80){
+          window.scrollBy({top: rect.top - 100, behavior:'smooth'});
+        }
+      }
+    });
+  });
+</script>
+
+</body>
+</html>
