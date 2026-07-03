@@ -80,6 +80,8 @@ Behavioral. Visual specs live in `DESIGN.md.Components`.
 | State | Surface | Treatment |
 |---|---|---|
 | No budget set (first use) | Dashboard | Neutral prompt in the status-card position: "Set a monthly budget to see your status" + a CTA to Budget Settings. Skippable — Sam can log expenses with no budget set at all. |
+| Second Period onward, budget already set | Dashboard | No neutral prompt — the prior Period's budget amount automatically carries forward as the new Period's starting figure (spend still resets to ₹0), so the status card shows real status from the very first load of the new Period. The neutral prompt only ever appears again if Sam never set a budget in any prior Period. |
+| No frequent-expense chips yet | Quick Add | The shelf section is hidden entirely (no empty/placeholder chips, no perpetual loading state) until Sam has at least one repeat-purchase pattern; the manual-entry path remains fully available. |
 | No transactions yet | Dashboard | Category breakdown area shows a simple empty message; status card still shows the no-budget or ₹0-of-budget state as applicable. No onboarding tour, no empty-state illustration. |
 | Cold app load | Dashboard | Status card and category list show a lightweight loading skeleton matching their final shape; resolves in place on data — never a blank screen or a full-page spinner. |
 | Reopen after a gap | Dashboard | Shows only today's/this-month's current picture. No "you missed N days," no confrontation, no catch-up prompt. |
@@ -179,6 +181,8 @@ Failure: Dashboard data is still loading (cold app open) → see State Patterns,
 3. **Climax (first use):** Returning to Dashboard, the status card now shows real status computed against the transactions Sam already logged before the budget even existed — nothing was lost or needs re-entry.
 4. **Later edit:** A few weeks in, Sam's expenses have grown; they tap the ₹8,000 figure directly on the Dashboard (inline entry point into Budget Settings), change it to ₹9,000, save.
 5. **Climax (edit):** The status card recalculates immediately against the new figure and the same underlying transactions — no re-import, no re-logging.
+
+**Second month onward:** Since Sam already set a budget in Period 1, Period 2 never shows the neutral "set a budget" prompt again — the ₹8,000 (or whatever it was last edited to) carries forward automatically as the new Period's starting figure, spend resets to ₹0, and Sam sees a real status card from the first Dashboard load of the new month. Editing the figure works exactly like any other edit (step 4 above).
 
 Failure: Sam enters a non-numeric or zero budget → see State Patterns, "Invalid budget entry."
 

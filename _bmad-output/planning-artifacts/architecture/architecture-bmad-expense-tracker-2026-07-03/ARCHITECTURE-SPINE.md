@@ -218,7 +218,7 @@ bmad-expense-tracker/
 | FR-1 Frequent-expense chip logging | `apps/web` Quick Add + `apps/api` `TransactionService` | AD-1, AD-2, AD-7 |
 | FR-2 Manual transaction entry | `apps/web` Quick Add + `apps/api` `TransactionController`/`Service` | AD-2, AD-3, AD-4, AD-7 |
 | FR-3 Transaction-date period assignment | `apps/api` `TransactionService` (period computed from `transaction_date`, not entry time) | AD-1, AD-6 |
-| FR-4 Live budget status | `apps/web` Dashboard + `apps/api` `BudgetService` (status thresholds: green <80%, amber 80–100%, red >100%) | AD-1, AD-6, AD-7 |
+| FR-4 Live budget status | `apps/web` Dashboard + `apps/api` `BudgetService` (status thresholds: green <80%, amber 80–100%, red >100%; same response also carries days-remaining in the current Period, computed live off the same `Asia/Kolkata` clock authority as AD-9 — not a separate endpoint) | AD-1, AD-6, AD-7, AD-9 |
 | FR-5 Derived totals | `apps/api` `TransactionService`/`BudgetService` query layer | AD-1 |
 | FR-6 Set and edit budget | `apps/web` Budget Settings + `apps/api` `BudgetController`/`Service` | AD-6, AD-7 |
 | FR-7/FR-8/FR-9 Category CRUD | `apps/web` Categories + `apps/api` `CategoryController`/`Service` | AD-5 |

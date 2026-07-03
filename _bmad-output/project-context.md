@@ -2,7 +2,7 @@
 project_name: 'bmad-expense-tracker'
 user_name: 'Raha'
 date: '2026-07-03'
-sections_completed: ['technology_stack', 'product_domain_analysis', 'ux_interaction_design', 'prd', 'architecture', 'epics_and_stories', 'development_workflow_rules', 'critical_donts_miss_rules']
+sections_completed: ['technology_stack', 'product_domain_analysis', 'ux_interaction_design', 'prd', 'architecture', 'epics_and_stories', 'development_workflow_rules', 'critical_donts_miss_rules', 'implementation_readiness']
 existing_patterns_found: 1
 ---
 
@@ -98,3 +98,14 @@ Full breakdown finalized at `_bmad-output/planning-artifacts/epics.md` (10 FRs �
 ### Critical Don't-Miss Rules
 
 - Stack, hosting, data model, and testing strategy are now decided (see Technology Stack & Architecture sections above) — this is no longer a placeholder file for those topics. Language-level coding-style rules (formatting, lint config specifics) are not yet captured; a full `/bmad-generate-project-context` regen is still worth running once real code exists to derive them from.
+
+## Implementation Readiness Assessment Completed (2026-07-03, read before starting Phase 4 / dev-story work)
+
+Full report at `_bmad-output/planning-artifacts/implementation-readiness-report-2026-07-03.md`. Verdict: **READY, all findings fixed same-day** — PRD, UX, Architecture, and Epics/Stories all checked against each other and against full document text (not summaries); zero critical violations, 100% of the 10 PRD FRs verified covered by actual Story Acceptance Criteria (not just the epics doc's own coverage-map claim). 5 issues were found (2 major, 3 minor) and all were fixed on 2026-07-03, directly in the source documents — nothing outstanding:
+
+- **Story 1.3 (Frequent-Expense Chip Logging)** now has ACs for the empty-shelf state (hidden entirely, not placeholder, when no habitual purchases exist yet) and for rapid double-tap protection (no-op while a save is in flight) — added to `epics.md`, with a matching "No frequent-expense chips yet" row added to `EXPERIENCE.md`'s State Patterns table.
+- **Story 2.2 (Rename or Re-icon Any Category)** now has an AC excluding self-match from the duplicate-name check, so an icon-only or case-only edit succeeds instead of being incorrectly blocked as a duplicate of itself — added to `epics.md`.
+- **`EXPERIENCE.md`** now depicts the "Period 2 onward, budget already set" Dashboard state (AD-6 carry-forward) — added as a State Patterns row and a Flow 4 paragraph, so the UX spec and Architecture/Epics behavior agree without relying on the addendum alone.
+- **`ARCHITECTURE-SPINE.md`'s** Capability Map FR-4 row now explicitly states days-remaining is computed in the same `BudgetService`/Dashboard response as the status thresholds, off the same `Asia/Kolkata` clock authority as AD-9.
+
+If picking up Story 1.3 or 2.2 for `dev-story`, the relevant ACs are already in `epics.md` — no need to re-derive them.

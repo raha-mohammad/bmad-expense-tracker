@@ -243,6 +243,14 @@ So that I can record spending in under 5 seconds with zero typing.
 **When** compared to Category icon buttons
 **Then** it's visually distinct in shape (pill vs. rounded-square) so the two fast paths never look identical
 
+**Given** Sam has no habitual purchases yet (first use, or no Transaction has ever repeated)
+**When** the Frequent-Expenses Shelf would render
+**Then** the shelf section is hidden entirely rather than showing empty or placeholder chips — Quick Add falls back to the manual-entry path only, with no broken or perpetually-loading shelf area
+
+**Given** a chip tap is already in flight (save request pending)
+**When** Sam taps the same chip again before the first request resolves
+**Then** the second tap is a no-op (button disabled or debounced for the duration of the pending request) — retapping never creates a duplicate Transaction
+
 ### Story 1.4: Dashboard — Derived Totals & Category Breakdown
 
 As Sam,
@@ -388,6 +396,10 @@ So that I can keep category labels accurate over time without losing any history
 **Then** none of its historical Transactions or any Derived Total changes — only the label/icon changes going forward
 
 **And** `CategoryService` allows rename/re-icon on `DEFAULT` and `CUSTOM` kinds, but rejects any such request targeting the `SYSTEM` (Uncategorized) row (AD-5)
+
+**Given** a Category is saved with its name unchanged (an icon-only edit) or changed only in letter case (e.g. "food" → "Food")
+**When** the duplicate-name check runs
+**Then** the Category is excluded from its own duplicate check — the save succeeds instead of being incorrectly blocked as a duplicate of itself
 
 ### Story 2.3: Delete Custom Category
 
