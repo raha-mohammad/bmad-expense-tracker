@@ -2,7 +2,7 @@
 project_name: 'bmad-expense-tracker'
 user_name: 'Raha'
 date: '2026-07-03'
-sections_completed: ['technology_stack', 'product_domain_analysis', 'ux_interaction_design', 'prd', 'architecture', 'development_workflow_rules', 'critical_donts_miss_rules']
+sections_completed: ['technology_stack', 'product_domain_analysis', 'ux_interaction_design', 'prd', 'architecture', 'epics_and_stories', 'development_workflow_rules', 'critical_donts_miss_rules']
 existing_patterns_found: 1
 ---
 
@@ -75,6 +75,17 @@ Full spine finalized at `_bmad-output/planning-artifacts/architecture/architectu
 - **Asia/Kolkata is the only clock that matters.** All "today"/Period-boundary logic is computed server-side, fixed to IST — the client never computes a date boundary itself. Closes a real bug class (server-UTC vs. browser-IST disagreeing near midnight).
 - **IDs are auto-increment `BIGINT`**, not UUID. **Money is always `NUMERIC(12,2)`/`BigDecimal`**, never float — client only ever displays server-computed totals, including the Search & Filter running total.
 - **Testing:** backend `@WebMvcTest` + direct unit tests on the derived-totals/budget-status calculation specifically; frontend component tests (Vitest/Testing Library) on Quick Add and Budget Status. No e2e for MVP. **CI:** GitHub Actions gates every push/PR (tests+lint must pass before merge).
+
+## Epics & Stories Completed (2026-07-03, read before dev-story or sprint-planning work)
+
+Full breakdown finalized at `_bmad-output/planning-artifacts/epics.md` (10 FRs → 3 epics → 10 stories, each with Given/When/Then ACs). Built directly from the PRD + Architecture + UX contract (the PRFAQ/research docs were deliberately excluded as inputs — PRD/Architecture already superseded them). Key decisions agents should know, not re-derive:
+
+- **Epic split is deliberately fewer/larger, not one-epic-per-PRD-feature-section:** Epic 1 "Core Expense Loop" bundles FR1–FR6 (Quick Add + Dashboard/Budget Status + Budget Management) into one epic — even though the PRD documents Dashboard&Budget-Status (FR4/FR5) and Budget Management (FR6) as separate features — because a Dashboard-only epic without any way to ever set a budget would perpetually show the "no budget" neutral prompt and never reach a complete, demoable state. This matches `project-context.md`'s own "core loop" language (quick-add + category totals + budget status + frequent-expenses shelf = never cut). Epic 2 (Category Management, FR7–FR9) and Epic 3 (Search & Filter, FR10) are genuinely additive and stand alone.
+- **Story order within Epic 1 was deliberately chosen to avoid forward dependencies:** scaffolding (1.1) → manual entry (1.2) → chip logging (1.3) → dashboard totals (1.4) → **set/edit budget (1.5) before** → live budget status display (1.6). Budget-setting comes before budget-status-display specifically so 1.6 has a real budget to render against by the time it's built, rather than only ever testable via the neutral-prompt path.
+- **No starter template exists for this project** — confirmed absent from Architecture during epic creation, not just an oversight. Story 1.1 scaffolds `apps/web`/`apps/api` from scratch per `ARCHITECTURE-SPINE.md`'s Source Tree, and also bundles CORS, the `@ControllerAdvice` error shape, CI, and the 5 default categories + SYSTEM row seed — this is intentionally larger than a typical "hello world" first story because Architecture's own wiring-pitfalls list said to build these in from day one, not bolt them on later.
+- **Database/entity creation is incremental across stories, not front-loaded:** `categories` table in 1.1 (only what's needed to seed defaults), `transactions` table introduced in 1.2, `budgets` table introduced in 1.5 — each table appears in the first story that actually needs it, per BMad's DB-creation principle.
+- **Two UX-DRs (rounded-corner scale, elevation/shadow tokens) have no dedicated story/AC** — they're pure global visual tokens applied as every screen is built per `DESIGN.md`, not a distinct behavior. Flagged explicitly during final validation as an expected non-gap, not something to "fix" by inventing an artificial styling story.
+- **FR Coverage Map (for quick lookup):** FR1→Story1.3, FR2→1.2, FR3→1.2/1.3, FR4→1.6, FR5→1.4, FR6→1.5, FR7→2.1, FR8→2.3, FR9→2.2, FR10→3.1.
 
 ## Critical Implementation Rules
 
