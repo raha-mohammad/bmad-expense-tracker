@@ -2,7 +2,7 @@
 project_name: 'bmad-expense-tracker'
 user_name: 'Raha'
 date: '2026-07-03'
-sections_completed: ['technology_stack', 'product_domain_analysis', 'ux_interaction_design', 'prd', 'development_workflow_rules', 'critical_donts_miss_rules']
+sections_completed: ['technology_stack', 'product_domain_analysis', 'ux_interaction_design', 'prd', 'architecture', 'development_workflow_rules', 'critical_donts_miss_rules']
 existing_patterns_found: 1
 ---
 
@@ -14,7 +14,7 @@ _This file contains critical rules and patterns that AI agents must follow when 
 
 ## Technology Stack & Versions
 
-**Proposed (not yet formally decided in a PRD/architecture doc):** Next.js + Spring Boot + PostgreSQL, per `_bmad-output/planning-artifacts/research/technical-nextjs-spring-boot-postgresql-stack-research-2026-07-02.md`. Treat as the working assumption, not a locked decision — confirm against `_bmad-output/**/architecture.md` once it exists before hard-committing to it.
+**Decided and pinned (architecture, 2026-07-03):** Next.js 16.2 LTS + Tailwind + shadcn/ui (Vercel) · Spring Boot 4.1.0 / Spring Framework 7 on Java 25 LTS (Railway) · PostgreSQL 18.4 (Railway). No longer a proposal — see `_bmad-output/planning-artifacts/architecture/architecture-bmad-expense-tracker-2026-07-03/ARCHITECTURE-SPINE.md` for the full Stack table and every enforceable rule (`AD-1`–`AD-10`).
 
 ## Product & Domain Analysis Completed (read before implementing or designing anything)
 
@@ -57,12 +57,24 @@ The MVP PRD is finalized at `_bmad-output/planning-artifacts/prds/prd-bmad-expen
 - **Budget is a single overall amount per period, not per-Category** — resolves an ambiguity where domain research's general framing ("a budget applies to a category") conflicted with the UX spec's singular "Set Monthly Budget" flow. Category breakdown on the Dashboard is informational only, never separately budgeted.
 - **RESOLVED — no rollover for MVP.** This was flagged in domain research as "the one domain concept worth a deliberate call" — now decided: budgets reset to zero each period, confirmed as a firm exclusion (not a maybe-cut), revisit for v2 based on actual usage.
 - **RESOLVED — testing gate descoped.** The PRFAQ's 5-7 user formal usability test stalled across 3 prior sessions (brainstorming → innovation strategy → PRFAQ). The PRD replaces it with self-dogfooding: Raha using the app personally for real spending is now the validation mechanism (see Success Metrics below), not a pre-launch blocker. Watch for this becoming a 4th stall — it's flagged in the PRD's own Open Questions as a real risk, not assumed solved.
-- **Hosting/persistence is now a stated NFR constraint**, not just an open gap: the system must run on persistent, non-ephemeral storage suitable for long-term personal use. The specific hosting provider/choice is still deferred to the architecture phase.
+- **Hosting/persistence NFR is now RESOLVED (architecture, 2026-07-03):** Vercel (frontend, free tier) + Railway (backend + Postgres). Railway's advertised "$5/mo" is a usage-credit floor, not a cap — realistic cost running Spring Boot + Postgres 24/7 is **~$10–30/mo**, not free. See Architecture section below.
 - **Success metrics defined for the first time** (none existed upstream — the PRFAQ explicitly had none). Primary: weekly real use, sustained 3+ months. Secondary: sub-5-second quick-add via frequent-expense chip. Counter-metric: don't optimize feature count/breadth at the cost of quick-add's speed or simplicity.
 - **Competitive framing sharpened:** market research (2026-07-02) found no competitor combining fast manual entry with non-shaming lapse recovery — but a later PRFAQ-stage research pass (never folded back into the market research doc itself) found **Koody** to be a near-exact positioning match. Differentiation on the non-shaming axis remains an unproven hypothesis, tracked via dogfooding, not a pre-launch blocker.
 - **Dashboard also shows days remaining in the current period** alongside budget status (surfaced from EXPERIENCE.md during PRD reconciliation — a real UX detail that hadn't been captured here before).
 - **Required-description field is confirmed again**, with its rationale now explicit in the PRD: it deliberately overrides market/domain research's "keep description optional for speed" recommendation, reconciled via the frequent-expense shelf (chips pre-fill description, so only new/one-off entries pay the typing cost).
 - **`addendum.md` now holds technical-how detail** the architecture phase should read: stack wiring pitfalls (CORS, DTOs, exception handler, layering — already listed above, now with a home), monolith architecture shape, the deferred auth/JWT branch point, and the full copy-tone (shame vs. guilt) rationale behind the red-banner color override.
+
+## Architecture Completed (2026-07-03, read before implementation)
+
+Full spine finalized at `_bmad-output/planning-artifacts/architecture/architecture-bmad-expense-tracker-2026-07-03/` (`ARCHITECTURE-SPINE.md` — 10 `AD`s, the enforceable contract — plus `SOLUTION-DESIGN.md`, a concise human-readable companion). Went through a 6-agent reconciliation + reviewer gate against the PRD, UX spec, and this file. Key non-obvious rules agents should already know, not re-derive:
+
+- **Layered monolith, split hosting:** `apps/web` (Next.js, Vercel) talks to `apps/api` (Spring Boot, Railway) via REST/JSON only; `apps/api` alone owns PostgreSQL. Monorepo: `apps/web` + `apps/api`. Controller → Service → Repository even for trivial endpoints; DTOs at the API boundary always, never a raw JPA entity.
+- **Category has three kinds, not two:** `DEFAULT` (5 seeded, renameable/re-iconable, never deletable), `CUSTOM` (user-created, fully editable/deletable), `SYSTEM` (Uncategorized — a real seeded singleton row, not a `NULL` sentinel). `CategoryService` itself rejects any create/rename/delete against the SYSTEM row — not just hidden from the UI.
+- **Budget is per-Period and auto-copies forward.** Resolves an ambiguity the PRD left open: spend resets to ₹0 every Period (confirmed, no rollover), but the *budget figure* carries forward from the prior Period unless never set. Practical effect: the "set your first budget" neutral prompt (PRD UJ-4) now only ever appears once, not every month — PRD `addendum.md` was updated to match.
+- **Transactions are immutable once saved** — no update/delete endpoint exists in MVP scope (`POST`/`GET` only). This was implicit in the PRD Glossary but wasn't an enforced architectural rule until now.
+- **Asia/Kolkata is the only clock that matters.** All "today"/Period-boundary logic is computed server-side, fixed to IST — the client never computes a date boundary itself. Closes a real bug class (server-UTC vs. browser-IST disagreeing near midnight).
+- **IDs are auto-increment `BIGINT`**, not UUID. **Money is always `NUMERIC(12,2)`/`BigDecimal`**, never float — client only ever displays server-computed totals, including the Search & Filter running total.
+- **Testing:** backend `@WebMvcTest` + direct unit tests on the derived-totals/budget-status calculation specifically; frontend component tests (Vitest/Testing Library) on Quick Add and Budget Status. No e2e for MVP. **CI:** GitHub Actions gates every push/PR (tests+lint must pass before merge).
 
 ## Critical Implementation Rules
 
@@ -74,5 +86,4 @@ The MVP PRD is finalized at `_bmad-output/planning-artifacts/prds/prd-bmad-expen
 
 ### Critical Don't-Miss Rules
 
-- This file is a placeholder. Absence of documented rules here does NOT mean no conventions apply — check for an `architecture.md` or PRD before assuming.
-- Regenerate this file (run `/bmad-generate-project-context` again) once the tech stack and architecture are decided, so real language/framework/testing rules can be captured.
+- Stack, hosting, data model, and testing strategy are now decided (see Technology Stack & Architecture sections above) — this is no longer a placeholder file for those topics. Language-level coding-style rules (formatting, lint config specifics) are not yet captured; a full `/bmad-generate-project-context` regen is still worth running once real code exists to derive them from.
