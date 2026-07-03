@@ -1,0 +1,19 @@
+# Reconciliation — Innovation Strategy (innovation-strategy-2026-07-02.md)
+
+## Carried forward faithfully
+- **Lapse Recovery flow deferred, gated behind unrun testing (Gate 2).** EXPERIENCE.md's "Inspiration & Anti-patterns" section names this precisely: "Deferred — dedicated lapse-recovery re-entry screen: concept exists in innovation strategy but is gated behind user testing that has not yet run; not part of this spine's IA." This is an exact, correctly-attributed carry-forward of the innovation strategy's central recommendation (Option A+C: ship modest V1, don't build Lapse Recovery until Gate 2 evidence exists).
+- **Streak-with-forgiveness not built** — consistent by omission and by the Banned list's flat exclusion of "streak counters or badges," matching the same Gate 2 logic.
+- **Freeform quick-capture parsing ("coffee 5" → amount + category)** — Initiative 3 (H2 horizon) is carried forward with its horizon label intact: EXPERIENCE.md calls it "H2/post-V1" explicitly, matching the innovation strategy's own horizon classification.
+- **Category taxonomy kept shallow** ("Reduce... category taxonomy depth" disruption vector) — consistent with the five-default set.
+- **No hard "budget as ceiling" restrictive framing, no red/warning-toned moralizing language** ("Eliminate" disruption vector) — consistent with Voice and Tone's factual-at-every-severity-level stance.
+
+## Deliberate overrides (confirmed documented in spec)
+- None of the innovation strategy's own initiatives required an override in the UX spec — its two build-relevant recommendations (defer Lapse Recovery/streak-forgiveness) are both respected, not reversed.
+
+## Dropped or under-represented (flag for awareness, not necessarily a defect)
+- **Local-first/offline storage as a "baseline worth keeping."** The innovation strategy's Technology Enablers section names this explicitly: "Local-first/offline storage — Finny already does this; not a differentiator on its own, but a baseline worth keeping given the persona's stated aversion to always-online, bank-linked tools." EXPERIENCE.md goes the opposite direction — "always-online assumption, no offline queueing/sync" — which is a legitimate, already-documented decision (Foundation section, and a named user decision in the discovery log) that simply follows the primary-source brief/PRFAQ's backend-persisted architecture instead. Since innovation-strategy is a secondary/reference source and brief/technical-research (primary sources) already committed to backend-persisted storage, following the primary source is the right call — but the tension with this specific innovation-strategy suggestion isn't called out anywhere in EXPERIENCE.md's Inspiration & Anti-patterns section the way the market-research red-banner reconsideration is. Worth a one-line note for completeness, not a fix.
+- **Value-chain minimalism, Initiative 7's "no cloud backend"** framing sits in tension with the actual architecture (Spring Boot + PostgreSQL backend, which is a server the app depends on). This tension already existed upstream of the UX session — it isn't something DESIGN.md/EXPERIENCE.md introduced — but a reader of innovation-strategy alone could be surprised that a "backend" exists at all. Flagged for awareness only.
+- Initiative 5/6 (build-in-public feedback loop, open-source/portfolio packaging) and the Gate 1/2/3 testing-and-evidence process are process/strategy matters correctly out of scope for a UX spec — their absence from DESIGN.md/EXPERIENCE.md is expected.
+
+## Undocumented drift (real concern — spec differs from source with no override rationale visible)
+- None found that rises above the "dropped/under-represented" items already noted above — both tensions (offline/local-first, "no cloud backend") are resolvable by primary-source precedence and are documented decisions in EXPERIENCE.md, just not explicitly cross-referenced back to innovation-strategy's suggestions.

@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Design Directions — bmad-expense-tracker</title>
+<style>
+  html,body{margin:0;padding:0;background:#fafafa;color:#111;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;}
+  .page-header{padding:28px 24px 14px;max-width:920px;}
+  .page-header h1{margin:0 0 6px;font-size:26px;}
+  .page-header p{margin:0 0 6px;color:#444;line-height:1.55;}
+  .page-header .note{font-size:13px;color:#777;}
+
+  .direction-section{padding:30px 24px 44px;border-top:10px solid #e5e7eb;}
+  .direction-section:first-of-type{border-top:none;}
+  .dir-title{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:6px;}
+  .dir-title h2{margin:0;font-size:23px;}
+  .dir-title .tag{font-size:13px;color:#666;font-style:italic;}
+  .rationale{max-width:780px;line-height:1.55;color:#333;margin:0 0 14px;font-size:14.5px;}
+  .legend{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:12.5px;color:#333;margin:0 0 22px;padding:10px 14px;background:#fff;border:1px solid #e5e7eb;border-radius:8px;max-width:780px;}
+  .legend .sw{display:inline-block;width:13px;height:13px;border-radius:3px;vertical-align:-2px;margin-right:5px;border:1px solid rgba(0,0,0,.15);}
+
+  .phones-row{display:flex;gap:28px;overflow-x:auto;padding-bottom:12px;}
+  .phone-block{flex:0 0 auto;}
+  .phone-block h3{font-size:12.5px;margin:0 0 8px;color:#555;font-weight:700;text-transform:uppercase;letter-spacing:.05em;}
+  .phone{width:375px;border:8px solid #1f2937;border-radius:38px;background:#000;padding:8px;}
+  .screen{background:var(--bg);border-radius:28px;overflow:hidden;min-height:680px;position:relative;font-family:var(--font-body);color:var(--text);}
+
+  /* Dashboard */
+  .topbar{padding:calc(var(--pad) + 6px) var(--pad) 10px;display:flex;justify-content:space-between;align-items:center;}
+  .topbar .hi{font-size:17px;font-weight:var(--fw-head,700);font-family:var(--font-heading);letter-spacing:var(--ls,normal);}
+  .topbar .month{font-size:12px;color:#6b7280;}
+  .icon-btn-ghost{background:none;border:none;font-size:18px;padding:6px;border-radius:8px;}
+
+  .status-card{margin:0 var(--pad) 10px;background:var(--green-bg);color:var(--green-text);border-radius:var(--radius-card);padding:var(--pad);border:var(--card-border);box-shadow:var(--card-shadow);}
+  .status-card .label-row{display:flex;align-items:center;gap:6px;font-weight:700;font-size:14.5px;margin-bottom:6px;}
+  .status-card .sub{font-size:12.5px;margin-top:6px;font-weight:600;}
+  .progress-track{background:rgba(0,0,0,.08);height:8px;border-radius:5px;overflow:hidden;}
+  .progress-fill{height:100%;background:currentColor;}
+
+  .state-variants-wrap{margin:0 var(--pad) 14px;}
+  .sv-label{font-size:11px;color:#6b7280;margin-bottom:5px;}
+  .sv-row{display:flex;gap:8px;}
+  .state-chip{flex:1;border-radius:var(--radius-sm);padding:8px 10px;font-size:11px;line-height:1.35;font-weight:700;}
+  .state-chip.amber{background:var(--amber-bg);color:var(--amber-text);}
+  .state-chip.red{background:var(--red-bg);color:var(--red-text);}
+
+  .stat-line{margin:0 var(--pad) 10px;font-size:12.5px;color:#555;}
+  .stat-line b{display:block;font-size:17px;color:var(--text);font-family:var(--font-heading);font-weight:var(--fw-head,700);letter-spacing:var(--ls,normal);margin-top:2px;}
+
+  .cat-list{margin:0;padding:0 var(--pad) 22px;display:flex;flex-direction:column;gap:8px;list-style:none;}
+  .cat-item{display:flex;justify-content:space-between;align-items:center;background:var(--card-bg);border:var(--card-border);box-shadow:var(--card-shadow);border-radius:var(--radius-card);padding:10px 14px;font-size:13.5px;}
+  .cat-item .amt{font-weight:var(--fw-head,700);font-family:var(--font-heading);}
+
+  .fab{position:absolute;right:18px;bottom:18px;width:54px;height:54px;border-radius:50%;background:var(--primary);color:#fff;border:none;font-size:26px;line-height:1;box-shadow:0 6px 14px rgba(0,0,0,.28);cursor:pointer;}
+
+  /* Quick Add */
+  .qa-top{padding:var(--pad) var(--pad) 6px;display:flex;align-items:center;gap:10px;}
+  .qa-top .back{background:none;border:none;font-size:18px;}
+  .qa-top .ttl{font-weight:var(--fw-head,700);font-family:var(--font-heading);font-size:16px;letter-spacing:var(--ls,normal);}
+
+  .shelf-label{padding:4px var(--pad) 2px;font-size:10.5px;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;}
+  .chip-shelf{display:flex;gap:8px;padding:0 var(--pad) 10px;overflow-x:auto;}
+  .chip{white-space:nowrap;background:var(--chip-bg);border:var(--card-border);border-radius:999px;padding:8px 14px;font-size:12px;color:var(--text);font-weight:600;}
+
+  .amount-display{text-align:center;font-family:var(--font-heading);font-weight:var(--fw-head,700);font-size:40px;padding:4px var(--pad) 0;letter-spacing:var(--ls,normal);}
+  .date-line{text-align:center;font-size:12px;color:#6b7280;margin-bottom:10px;}
+
+  .cat-row{display:flex;gap:9px;padding:0 var(--pad) 12px;overflow-x:auto;}
+  .cat-btn{flex:0 0 auto;width:60px;height:60px;border-radius:var(--radius-card);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:19px;border:2px solid transparent;background:var(--card-bg);color:var(--text);}
+  .cat-btn span.lbl{font-size:9px;font-weight:700;}
+  .cat-btn.sel{border-color:var(--primary);background:var(--selected-bg);}
+
+  .desc-wrap{padding:0 var(--pad) 8px;display:flex;flex-direction:column;gap:4px;}
+  .desc-wrap label{font-size:11px;font-weight:700;color:#555;}
+  .desc-wrap input{padding:10px 12px;border-radius:var(--radius-sm);border:1px solid var(--border-color);font-size:13.5px;font-family:var(--font-body);width:100%;}
+  .desc-wrap input.demo-focus{outline:none;box-shadow:0 0 0 3px var(--focus-ring);border-color:var(--primary);}
+  .desc-wrap .hint{font-size:10px;color:#9ca3af;}
+
+  .save-states{display:flex;gap:14px;padding:2px var(--pad) 10px;align-items:center;}
+  .save-states .ss{display:flex;align-items:center;gap:6px;font-size:10.5px;color:#6b7280;}
+  .mini-save{width:28px;height:28px;border-radius:50%;border:none;font-size:13px;display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;}
+  .mini-save.disabled{background:#e5e7eb;color:#9ca3af;}
+  .mini-save.enabled{background:var(--primary);color:#fff;}
+
+  .keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:2px var(--pad) 12px;}
+  .key{padding:13px 0;font-size:17px;border:none;border-radius:var(--radius-card);background:var(--card-bg);color:var(--text);font-family:var(--font-heading);font-weight:var(--fw-head,700);}
+
+  .save-row{display:flex;justify-content:flex-end;padding:0 var(--pad) 16px;}
+  .save-btn{width:50px;height:50px;border-radius:50%;border:none;font-size:20px;}
+  .save-btn.is-disabled{background:#e5e7eb;color:#9ca3af;}
+
+  /* real keyboard focus, tuned per section via inherited --primary */
+  button:focus-visible, input:focus-visible{outline:3px solid var(--primary);outline-offset:2px;}
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>Design Directions — bmad-expense-tracker</h1>
+  <p>Four visual directions for the same two screens (Dashboard, Quick Add), so Sam's calm-not-alarmed budgeting experience can be compared side by side before one direction is picked and folded into DESIGN.md tokens.</p>
+  <p class="note">Each phone frame is ~375px wide (mobile-first). All amounts use ₹ INR. Green is the primary budget state shown on the main Dashboard mock; amber/red variants of the same status component are shown as insets. Quick Add shows the required-description gating on the save button (disabled vs. enabled) and one always-on focus-ring example on the description field.</p>
+</div>
+
+<!-- =======================================================
+DIRECTION A — "Calm Harbor"
+bg:#F5F9FC primary:#2563EB green-bg:#ECFDF5 green-text:#065F46
+amber-bg:#FFFBEB amber-text:#92400E red-bg:#FEF2F2 red-text:#991B1B
+card:#FFFFFF shadow:0 2px 8px rgba(15,23,42,.08) radius:16px
+======================================================== -->
+<section class="direction-section" style="--bg:#F5F9FC;--primary:#2563EB;--font-body:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;--font-heading:inherit;--fw-head:700;--ls:normal;--radius-card:16px;--radius-sm:10px;--pad:16px;--card-bg:#FFFFFF;--card-border:none;--card-shadow:0 2px 8px rgba(15,23,42,.08);--green-bg:#ECFDF5;--green-text:#065F46;--amber-bg:#FFFBEB;--amber-text:#92400E;--red-bg:#FEF2F2;--red-text:#991B1B;--border-color:#D1D5DB;--focus-ring:rgba(37,99,235,.35);--chip-bg:#EFF6FF;--selected-bg:#DBEAFE;--text:#111827;">
+  <div class="dir-title"><h2>A. Calm Harbor</h2><span class="tag">calm blue-teal · airy · soft shadows · rounded friendly sans</span></div>
+  <p class="rationale">A calm blue palette with soft-shadow white cards and generous spacing keeps the interface feeling airy and reassuring rather than clinical. Rounded 16px corners and a friendly system sans-serif avoid any sense of institutional banking software. Every status color is paired with an icon and bold factual text so meaning never depends on hue alone.</p>
+  <div class="legend">
+    <span><span class="sw" style="background:#F5F9FC"></span>bg #F5F9FC</span>
+    <span><span class="sw" style="background:#2563EB"></span>primary #2563EB</span>
+    <span><span class="sw" style="background:#065F46"></span>green #065F46 on #ECFDF5</span>
+    <span><span class="sw" style="background:#92400E"></span>amber #92400E on #FFFBEB</span>
+    <span><span class="sw" style="background:#991B1B"></span>red #991B1B on #FEF2F2</span>
+    <span><span class="sw" style="background:#FFFFFF;border-color:#ccc"></span>card #FFFFFF</span>
+  </div>
+
+  <div class="phones-row">
+    <div class="phone-block">
+      <h3>Dashboard</h3>
+      <div class="phone"><div class="screen">
+        <div class="topbar">
+          <div><div class="hi">Hi Sam 👋</div><div class="month">July 2026</div></div>
+          <button class="icon-btn-ghost" aria-label="Settings" type="button">⚙️</button>
+        </div>
+        <div class="status-card">
+          <div class="label-row"><span aria-hidden="true">✅</span><span>₹3,550 of ₹8,000 this month</span></div>
+          <div class="progress-track"><div class="progress-fill" style="width:44%"></div></div>
+          <div class="sub">On pace — 12 days left</div>
+        </div>
+        <div class="state-variants-wrap">
+          <div class="sv-label">Same component, other states:</div>
+          <div class="sv-row">
+            <div class="state-chip amber"><span aria-hidden="true">▲</span> ₹6,800 of ₹8,000 — 85% used, 5 days left</div>
+            <div class="state-chip red"><span aria-hidden="true">✕</span> Budget exceeded by ₹250</div>
+          </div>
+        </div>
+        <div class="stat-line">Total spent this month<b>₹3,550</b></div>
+        <ul class="cat-list">
+          <li class="cat-item"><span>🍔 Food</span><span class="amt">₹1,450</span></li>
+          <li class="cat-item"><span>🚌 Transport</span><span class="amt">₹600</span></li>
+          <li class="cat-item"><span>🛍️ Shopping</span><span class="amt">₹900</span></li>
+          <li class="cat-item"><span>🧾 Bills</span><span class="amt">₹500</span></li>
+          <li class="cat-item"><span>🎬 Entertainment</span><span class="amt">₹100</span></li>
+        </ul>
+        <button class="fab" aria-label="Add expense" type="button">+</button>
+      </div></div>
+    </div>
+
+    <div class="phone-block">
+      <h3>Quick Add</h3>
+      <div class="phone"><div class="screen">
+        <div class="qa-top"><button class="back" aria-label="Back" type="button">←</button><div class="ttl">Add Expense</div></div>
+        <div class="shelf-label">Frequent — tap to log instantly</div>
+        <div class="chip-shelf">
+          <button class="chip" type="button">☕ Coffee ₹150</button>
+          <button class="chip" type="button">🚌 Bus ₹40</button>
+          <button class="chip" type="button">🍱 Lunch ₹120</button>
+        </div>
+        <div class="amount-display">₹150</div>
+        <div class="date-line">Today, 3 Jul 2026</div>
+        <div class="cat-row">
+          <button class="cat-btn sel" type="button" aria-pressed="true"><span aria-hidden="true">🍔</span><span class="lbl">Food</span></button>
+          <button class="cat-btn" type="button" aria-pressed="false"><span aria-hidden="true">🚌</span><span class="lbl">Transport</span></button>
+          <button class="cat-btn" type="button" aria-pressed="false"><span aria-hidden="true">🛍️</span><span class="lbl">Shopping</span></button>
+          <button class="cat-btn" type="button" aria-pressed="false"><span aria-hidden="true">🧾</span><span class="lbl">Bills</span></button>
+          <button class="cat-btn" type="button" aria-pressed="false"><span aria-hidden="true">🎬</span><span class="lbl">Fun</span></button>
+        </div>
+        <div class="desc-wrap">
+          <label for="descA">Description (required)</label>
+          <input id="descA" type="text" class="demo-focus" placeholder="e.g. Coffee with friends">
+          <span class="hint">Save stays disabled until this is filled — focus ring shown here for demo</span>
+        </div>
+        <div class="save-states">
+          <div class="ss"><span class="mini-save disabled" aria-hidden="true">✓</span>Empty → disabled</div>
+          <div class="ss"><span class="mini-save enabled" aria-hidden="true">✓</span>Filled → enabled</div>
+        </div>
+        <div class="keypad">
+          <button class="key" type="button">1</button><button class="key" type="button">2</button><button class="key" type="button">3</button>
+          <button class="key" type="button">4</button><button class="key" type="button">5</button><button class="key" type="button">6</button>
+          <button class="key" type="button">7</button><button class="key" type="button">8</button><button class="key" type="button">9</button>
+          <button class="key" type="button">.</button><button class="key" type="button">0</button><button class="key" type="button">⌫</button>
+        </div>
+        <div class="save-row"><button class="save-btn is-disabled" type="button" disabled aria-label="Save expense — add a description first">✓</button></div>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+<!-- =======================================================
+DIRECTION B — "Warm Ledger"
+bg:#FBF7F0 primary:#C2591F green-bg:#F0F5EC green-text:#2F5D34
+amber-bg:#FDF3E4 amber-text:#8A5A12 red-bg:#FBEAE5 red-text:#8C2F22
+card:#FFFDF9 border:1px solid #E4D9C8 radius:8px
+======================================================== -->
+<section class="direction-section" style="--bg:#FBF7F0;--primary:#C2591F;--font-body:'Segoe UI',Tahoma,Geneva,Arial,sans-serif;--font-heading:Georgia,'Times New Roman',serif;--fw-head:600;--ls:normal;--radius-card:8px;--radius-sm:6px;--pad:12px;--card-bg:#FFFDF9;--card-border:1px solid #E4D9C8;--card-shadow:none;--green-bg:#F0F5EC;--green-text:#2F5D34;--amber-bg:#FDF3E4;--amber-text:#8A5A12;--red-bg:#FBEAE5;--red-text:#8C2F22;--border-color:#D8C9B4;--focus-ring:rgba(194,89,31,.35);--chip-bg:#F5ECDD;--selected-bg:#F3E1CE;--text:#3A2E22;">
+  <div class="dir-title"><h2>B. Warm Ledger</h2><span class="tag">warm cream-terracotta · flat bordered · denser · serif numerals</span></div>
+  <p class="rationale">A warm cream-and-terracotta register with flat, 1px-bordered cards feels like a tidy paper ledger rather than a cold banking dashboard, softening the anxiety of budgeting. Slightly denser spacing and serif headline numerals give amounts a grounded, considered weight while staying easy to scan. Traffic-light states use warm-toned tints so red and amber read as informative, not alarming.</p>
+  <div class="legend">
+    <span><span class="sw" style="background:#FBF7F0"></span>bg #FBF7F0</span>
+    <span><span class="sw" style="background:#C2591F"></span>primary #C2591F</span>
+    <span><span class="sw" style="background:#2F5D34"></span>green #2F5D34 on #F0F5EC</span>
+    <span><span class="sw" style="background:#8A5A12"></span>amber #8A5A12 on #FDF3E4</span>
+    <span><span class="sw" style="background:#8C2F22"></span>red #8C2F22 on #FBEAE5</span>
+    <span><span class="sw" style="background:#FFFDF9;border-color:#E4D9C8"></span>card #FFFDF9 / border #E4D9C8</span>
+  </div>
+
+  <div class="phones-row">
+    <div class="phone-block">
+      <h3>Dashboard</h3>
+      <div class="phone"><div class="screen">
+        <div class="topbar">
+          <div><div class="hi">Hi Sam 👋</div><div class="month">July 2026</div></div>
+          <button class="icon-btn-ghost" aria-label="Settings" type="button">⚙️</button>
+        </div>
+        <div class="status-card">
+          <div class="label-row"><span aria-hidden="true">✅</span><span>₹3,550 of ₹8,000 this month</span></div>
+          <div class="progress-track"><div class="progress-fill" style="width:44%"></div></div>
+          <div class="sub">On pace — 12 days left</div>
+        </div>
+        <div class="state-variants-wrap">
+          <div class="sv-label">Same component, other states:</div>
+          <div class="sv-row">
+            <div class="state-chip amber"><span aria-hidden="true">▲</span> ₹6,800 of ₹8,000 — 85% used, 5 days left</div>
+            <div class="state-chip red"><span aria-hidden="true">✕</span> Budget exceeded by ₹250</div>
+          </div>
+        </div>
+        <div class="stat-line">Total spent this month<b>₹3,550</b></div>
+        <ul class="cat-list">
+          <li class="cat-item"><span>🍔 Food</span><span class="amt">₹1,450</span></li>
+          <li class="cat-item"><span>🚌 Transport</span><span class="amt">₹600</span></li>
+          <li class="cat-item"><span>🛍️ Shopping</span><span class="amt">₹900</span></li>
+          <li class="cat-item"><span>🧾 Bills</span><span class="amt">₹500</span></li>
+          <li class="cat-item"><span>🎬 Entertainment</span><span class="amt">₹100</span></li>
+        </ul>
+        <button class="fab" aria-label="Add expense" type="button">+</button>
+      </div></div>
+    </div>
+
+    <div class="phone-block">
+      <h3>Quick Add</h3>
+      <div class="phone"><div class="screen">
+        <div class="qa-top"><button class="back" aria-label="Back" type="button">←</button><div class="ttl">Add Expense</div></div>
+        <div class="shelf-label">Frequent — tap to log instantly</div>
+        <div class="chip-shelf">
+          <button class="chip" type="button">☕ Coffee ₹150</button>
+          <button class="chip" type="button">🚌 Bus ₹40</button>
+          <button class="chip" type="button">🍱 Lunch ₹120</button>
+        </div>
+        <div class="amount-display">₹150</div>
+        <div class="date-line">Today, 3 Jul 2026</div>
+        <div class="cat-row">
+          <button class="cat-btn sel" type="button" aria-pressed="true"><span aria-hidden="true">🍔</span><span class="lbl">Food</span></button>
+          <button class="cat-btn" type="button" aria-pressed="false"><span aria-hidden="true">🚌</span><span class="lbl">Transport</span></button>
+          <button class="cat-btn" type="button" aria-pressed="false"><span aria-hidden="true">🛍️</span><span class="lbl">Shopping</span></button>
+          <button class="cat-btn" type="button" aria-pressed="false"><span aria-hidden="true">🧾</span><span class="lbl">Bills</span></button>
+          <button class="cat-btn" type="button" aria-pressed="false"><span aria-hidden="true">🎬</span><span class="lbl">Fun</span></button>
+        </div>
+        <div class="desc-wrap">
+          <label for="descB">Description (required)</label>
+          <input id="descB" type="text" class="demo-focus" placeholder="e.g. Coffee with friends">
+          <span class="hint">Save stays disabled until this is filled — focus ring shown here for demo</span>
+        </div>
+        <div class="save-states">
+          <div class="ss"><span class="mini-save disabled" aria-hidden="true">✓</span>Empty → disabled</div>
+          <div class="ss"><span class="mini-save enabled" aria-hidden="true">✓</span>Filled → enabled</div>
+        </div>
+        <div class="keypad">
+          <button class="key" type="button">1</button><button class="key" type="button">2</button><button class="key" type="button">3</button>
+          <button class="key" type="button">4</button><button class="key" type="button">5</button><button class="key" type="button">6</button>
+          <button class="key" type="button">7</button><button class="key" type="button">8</button><button class="key" type="button">9</button>
+          <button class="key" type="button">.</button><button class="key" type="button">0</button><button class="key" type="button">⌫</button>
+        </div>
+        <div class="save-row"><button class="save-btn is-disabled" type="button" disabled aria-label="Save expense — add a description first">✓</button></div>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+<!-- =======================================================
+DIRECTION C — "Quiet Slate"
+bg:#F1F3F5 primary:#334155 green-bg:#E7F3EC green-text:#14532D
+amber-bg:#FBF1DD amber-text:#78350F red-bg:#FCE8E6 red-text:#7F1D1D
+card(tint block):#E7EBEF no border/shadow radius:6px
+======================================================== -->
+<section class="direction-section" style="--bg:#F1F3F5;--primary:#334155;--font-body:'Segoe UI',Arial,Helvetica,sans-serif;--font-heading:inherit;--fw-head:700;--ls:-0.01em;--radius-card:6px;--radius-sm:4px;--pad:12px;--card-bg:#E7EBEF;--card-border:none;--card-shadow:none;--green-bg:#E7F3EC;--green-text:#14532D;--amber-bg:#FBF1DD;--amber-text:#78350F;--red-bg:#FCE8E6;--red-text:#7F1D1D;--border-color:#CBD5E1;--focus-ring:rgba(51,65,85,.4);--chip-bg:#DEE3E8;--selected-bg:#CBD5E1;--text:#1E293B;">
+  <div class="dir-title"><h2>C. Quiet Slate</h2><span class="tag">cool slate-graphite · crisp neutral sans · flat tint blocks · denser</span></div>
+  <p class="rationale">A cool slate-and-graphite base with flat tinted card blocks — no borders or shadows — reads as crisp and neutral, favoring information density for someone who wants to scan totals fast. Tight letter-spacing on headings and a plain system sans keep the tone matter-of-fact rather than playful. Status tints stay muted and are always paired with an icon and exact copy so severity reads without feeling like an alarm.</p>
+  <div class="legend">
+    <span><span class="sw" style="background:#F1F3F5"></span>bg #F1F3F5</span>
+    <span><span class="sw" style="background:#334155"></span>primary #334155</span>
+    <span><span class="sw" style="background:#14532D"></span>green #14532D on #E7F3EC</span>
+    <span><span class="sw" style="background:#78350F"></span>amber #78350F on #FBF1DD</span>
+    <span><span class="sw" style="background:#7F1D1D"></span>red #7F1D1D on #FCE8E6</span>
+    <span><span class="sw" style="background:#E7EBEF"></span>card tint #E7EBEF (no border/shadow)</span>
+  </div>
+
+  <div class="phones-row">
+    <div class="phone-block">
+      <h3>Dashboard</h3>
+      <div class="phone"><div class="screen">
+        <div class="topbar">
+          <div><div class="hi">Hi Sam 👋</div><div class="month">July 2026</div></div>
+          <button class="icon-btn-ghost" aria-label="Settings" type="button">⚙️</button>
+        </div>
+        <div class="status-card">
+          <div class="label-row"><span aria-hidden="true">✅</span><span>₹3,550 of ₹8,000 this month</span></div>
+          <div class="progress-track"><div class="progress-fill" style="width:44%"></div></div>
+          <div class="sub">On pace — 12 days left</div>
+        </div>
+        <div class="state-variants-wrap">
+          <div class="sv-label">Same component, other states:</div>
+          <div class="sv-row">
+            <div class="state-chip amber"><span aria-hidden="true">▲</span> ₹6,800 of ₹8,000 — 85% used, 5 days left</div>
+            <div class="state-chip red"><span aria-hidden="true">✕</span> Budget exceeded by ₹250</div>
+          </div>
+        </div>
+        <div class="stat-line">Total spent this month<b>₹3,550</b></div>
+        <ul class="cat-list">
+          <li class="cat-item"><span>🍔 Food</span><span class="amt">₹1,450</span></li>
+          <li class="cat-item"><span>🚌 Transport</span><span class="amt">₹600</span></li>
+          <li class="cat-item"><span>🛍️ Shopping</span><span class="amt">₹900</span></li>
+          <li class="cat-item"><span>🧾 Bills</span><span class="amt">₹500</span></li>
+          <li class="cat-item"><span>🎬 Entertainment</span><span class="amt">₹100</span></li>
+        </ul>
+        <button class="fab" aria-label="Add expense" type="button">+</button>
+      </div></div>
+    </div>
+
+    <div class="phone-block">
+      <h3>Quick Add</h3>
+      <div class="phone"><div class="screen">
+        <div class="qa-top"><button class="back" aria-label="Back" type="button">←</button><div class="ttl">Add Expense</div></div>
+        <div class="shelf-label">Frequent — tap to log instantly</div>
+        <div class="chip-shelf">
+          <button class="chip" type="button">☕ Coffee ₹150</button>
+          <button class="chip" type="button">🚌 Bus ₹40</button>
+          <button class="chip" type="button">🍱 Lunch ₹120</button>
+        </div>
+        <div class="amount-display">₹150</div>
+        <div class="date-line">Today, 3 Jul 2026</div>
+        <div class="cat-row">
+          <button class="cat-btn sel" type="button" aria-pressed="true"><span aria-hidden="true">🍔</span><span class="lbl">Food</span></button>
+          <button class="cat-btn" type="button" aria-pressed="false"><span aria-hidden="true">🚌</span><span class="lbl">Transport</span></button>
+          <button class="cat-btn" type="button" aria-pressed="false"><span aria-hidden="true">🛍️</span><span class="lbl">Shopping</span></button>
+          <button class="cat-btn" type="button" aria-pressed="false"><span aria-hidden="true">🧾</span><span class="lbl">Bills</span></button>
+          <button class="cat-btn" type="button" aria-pressed="false"><span aria-hidden="true">🎬</span><span class="lbl">Fun</span></button>
+        </div>
+        <div class="desc-wrap">
+          <label for="descC">Description (required)</label>
+          <input id="descC" type="text" class="demo-focus" placeholder="e.g. Coffee with friends">
+          <span class="hint">Save stays disabled until this is filled — focus ring shown here for demo</span>
+        </div>
+        <div class="save-states">
+          <div class="ss"><span class="mini-save disabled" aria-hidden="true">✓</span>Empty → disabled</div>
+          <div class="ss"><span class="mini-save enabled" aria-hidden="true">✓</span>Filled → enabled</div>
+        </div>
+        <div class="keypad">
+          <button class="key" type="button">1</button><button class="key" type="button">2</button><button class="key" type="button">3</button>
+          <button class="key" type="button">4</button><button class="key" type="button">5</button><button class="key" type="button">6</button>
+          <button class="key" type="button">7</button><button class="key" type="button">8</button><button class="key" type="button">9</button>
+          <button class="key" type="button">.</button><button class="key" type="button">0</button><button class="key" type="button">⌫</button>
+        </div>
+        <div class="save-row"><button class="save-btn is-disabled" type="button" disabled aria-label="Save expense — add a description first">✓</button></div>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+<!-- =======================================================
+DIRECTION D — "Fresh Mint Minimal"
+bg:#FAFAFF primary:#6D5AE0 green-bg:#E7F9F1 green-text:#0F6B41
+amber-bg:#FEF6E7 amber-text:#92400E red-bg:#FDEDEC red-text:#9B1C1C
+card:#FFFFFF shadow:0 4px 14px rgba(109,90,224,.12) radius:22px
+======================================================== -->
+<section class="direction-section" style="--bg:#FAFAFF;--primary:#6D5AE0;--font-body:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;--font-heading:inherit;--fw-head:800;--ls:normal;--radius-card:22px;--radius-sm:14px;--pad:18px;--card-bg:#FFFFFF;--card-border:none;--card-shadow:0 4px 14px rgba(109,90,224,.12);--green-bg:#E7F9F1;--green-text:#0F6B41;--amber-bg:#FEF6E7;--amber-text:#92400E;--red-bg:#FDEDEC;--red-text:#9B1C1C;--border-color:#E4E1FB;--focus-ring:rgba(109,90,224,.35);--chip-bg:#F1EEFE;--selected-bg:#E4E1FB;--text:#2A2640;">
+  <div class="dir-title"><h2>D. Fresh Mint Minimal</h2><span class="tag">lavender-mint accent · extra-rounded · bold headings · airy</span></div>
+  <p class="rationale">An extra-rounded lavender-and-mint register with bold headings and larger tap targets is the most overtly friendly direction, aimed squarely at reassuring an anxious first-time budgeter. Soft shadows and generous spacing keep it light and encouraging rather than dense or transactional. The accent color stays purely decorative — budget severity is still carried only by the green/amber/red status tints, icons and copy, never by the brand color.</p>
+  <div class="legend">
+    <span><span class="sw" style="background:#FAFAFF;border-color:#ccc"></span>bg #FAFAFF</span>
+    <span><span class="sw" style="background:#6D5AE0"></span>primary #6D5AE0</span>
+    <span><span class="sw" style="background:#0F6B41"></span>green #0F6B41 on #E7F9F1</span>
+    <span><span class="sw" style="background:#92400E"></span>amber #92400E on #FEF6E7</span>
+    <span><span class="sw" style="background:#9B1C1C"></span>red #9B1C1C on #FDEDEC</span>
+    <span><span class="sw" style="background:#FFFFFF;border-color:#ccc"></span>card #FFFFFF</span>
+  </div>
+
+  <div class="phones-row">
+    <div class="phone-block">
+      <h3>Dashboard</h3>
+      <div class="phone"><div class="screen">
+        <div class="topbar">
+          <div><div class="hi">Hi Sam 👋</div><div class="month">July 2026</div></div>
+          <button class="icon-btn-ghost" aria-label="Settings" type="button">⚙️</button>
+        </div>
+        <div class="status-card">
+          <div class="label-row"><span aria-hidden="true">✅</span><span>₹3,550 of ₹8,000 this month</span></div>
+          <div class="progress-track"><div class="progress-fill" style="width:44%"></div></div>
+          <div class="sub">On pace — 12 days left</div>
+        </div>
+        <div class="state-variants-wrap">
+          <div class="sv-label">Same component, other states:</div>
+          <div class="sv-row">
+            <div class="state-chip amber"><span aria-hidden="true">▲</span> ₹6,800 of ₹8,000 — 85% used, 5 days left</div>
+            <div class="state-chip red"><span aria-hidden="true">✕</span> Budget exceeded by ₹250</div>
+          </div>
+        </div>
+        <div class="stat-line">Total spent this month<b>₹3,550</b></div>
+        <ul class="cat-list">
+          <li class="cat-item"><span>🍔 Food</span><span class="amt">₹1,450</span></li>
+          <li class="cat-item"><span>🚌 Transport</span><span class="amt">₹600</span></li>
+          <li class="cat-item"><span>🛍️ Shopping</span><span class="amt">₹900</span></li>
+          <li class="cat-item"><span>🧾 Bills</span><span class="amt">₹500</span></li>
+          <li class="cat-item"><span>🎬 Entertainment</span><span class="amt">₹100</span></li>
+        </ul>
+        <button class="fab" aria-label="Add expense" type="button">+</button>
+      </div></div>
+    </div>
+
+    <div class="phone-block">
+      <h3>Quick Add</h3>
+      <div class="phone"><div class="screen">
+        <div class="qa-top"><button class="back" aria-label="Back" type="button">←</button><div class="ttl">Add Expense</div></div>
+        <div class="shelf-label">Frequent — tap to log instantly</div>
+        <div class="chip-shelf">
+          <button class="chip" type="button">☕ Coffee ₹150</button>
+          <button class="chip" type="button">🚌 Bus ₹40</button>
+          <button class="chip" type="button">🍱 Lunch ₹120</button>
+        </div>
+        <div class="amount-display">₹150</div>
+        <div class="date-line">Today, 3 Jul 2026</div>
+        <div class="cat-row">
+          <button class="cat-btn sel" type="button" aria-pressed="true"><span aria-hidden="true">🍔</span><span class="lbl">Food</span></button>
+          <button class="cat-btn" type="button" aria-pressed="false"><span aria-hidden="true">🚌</span><span class="lbl">Transport</span></button>
+          <button class="cat-btn" type="button" aria-pressed="false"><span aria-hidden="true">🛍️</span><span class="lbl">Shopping</span></button>
+          <button class="cat-btn" type="button" aria-pressed="false"><span aria-hidden="true">🧾</span><span class="lbl">Bills</span></button>
+          <button class="cat-btn" type="button" aria-pressed="false"><span aria-hidden="true">🎬</span><span class="lbl">Fun</span></button>
+        </div>
+        <div class="desc-wrap">
+          <label for="descD">Description (required)</label>
+          <input id="descD" type="text" class="demo-focus" placeholder="e.g. Coffee with friends">
+          <span class="hint">Save stays disabled until this is filled — focus ring shown here for demo</span>
+        </div>
+        <div class="save-states">
+          <div class="ss"><span class="mini-save disabled" aria-hidden="true">✓</span>Empty → disabled</div>
+          <div class="ss"><span class="mini-save enabled" aria-hidden="true">✓</span>Filled → enabled</div>
+        </div>
+        <div class="keypad">
+          <button class="key" type="button">1</button><button class="key" type="button">2</button><button class="key" type="button">3</button>
+          <button class="key" type="button">4</button><button class="key" type="button">5</button><button class="key" type="button">6</button>
+          <button class="key" type="button">7</button><button class="key" type="button">8</button><button class="key" type="button">9</button>
+          <button class="key" type="button">.</button><button class="key" type="button">0</button><button class="key" type="button">⌫</button>
+        </div>
+        <div class="save-row"><button class="save-btn is-disabled" type="button" disabled aria-label="Save expense — add a description first">✓</button></div>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>

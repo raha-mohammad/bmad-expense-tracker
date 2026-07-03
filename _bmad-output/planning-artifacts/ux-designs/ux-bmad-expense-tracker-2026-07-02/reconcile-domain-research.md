@@ -1,0 +1,19 @@
+# Reconciliation — Domain Research (domain-expense-tracking-research-2026-07-02.md)
+
+## Carried forward faithfully
+- Transaction → Category → Period → Total model, "lighter than accounting" — reflected in EXPERIENCE.md's Foundation and IA (no double-entry, no reconciliation concept anywhere).
+- "Category totals and budget-remaining always derived, never independently stored/edited" as the domain's core integrity rule — promoted to a named, explicit "structural, not just behavioral" invariant in EXPERIENCE.md Foundation. This is a faithful, even strengthened, carry-forward.
+- Categories "few and obvious" — the five-default taxonomy and "never a dropdown, big icon buttons" pattern directly implements the domain research's category-selection guidance.
+- "Default to the common case" (today prefilled, last-used category suggested) — Component Patterns' Category icon button row ("last-used category pre-selected by default").
+- "Favor short, frequent review over rare, heavy review" — served by the always-visible, always-current Dashboard/status card (no gated weekly-only surface), which is the correct UX realization of this domain guidance rather than a literal "weekly check-in" feature (that specific feature shape is deliberately rejected elsewhere, for unrelated reasons — see reconcile-design-thinking.md).
+- Rollover explicitly out of MVP — consistent; EXPERIENCE.md doesn't introduce any rollover behavior, matching "no rollover behavior is required for MVP."
+
+## Deliberate overrides (confirmed documented in spec)
+- Required description field (domain research's MVP best practice was "minimize fields... notes/description should be optional"): documented per the same Component Patterns/Flow-2 reconciliation as in reconcile-brief.md. The override is stated with its rationale (keyword search) in the memlog and reflected in the interaction design (chip path stays zero-typing, manual path gates the save button) — correctly and visibly reconciled, not a silent contradiction of the "keep fields minimal" guidance.
+
+## Dropped or under-represented (flag for awareness, not necessarily a defect)
+- **Budget period ↔ pay-cycle alignment.** Domain research explicitly flags that periods "should conceptually be tied to the category+period pairing, not hardcoded to calendar month only... worth keeping in mind if weekly/irregular-income users are ever a target" — directly relevant given the persona (irregular-income students). EXPERIENCE.md commits unconditionally to monthly budgets with no mention that pay-cycle flexibility was considered and consciously deferred. Reasonable for MVP scope, but currently reads as if the question was never raised rather than deliberately shelved.
+- **The "Adjust" workflow step** (domain's 5-step Log→Categorize→Accumulate→Review→Adjust cycle includes "rarely, reclassify past entries") has no corresponding surface — there is no edit/delete-transaction flow anywhere in EXPERIENCE.md's six Key Flows. Likely fine to cut for V1, but unflagged as a cut.
+
+## Undocumented drift (real concern — spec differs from source with no override rationale visible)
+- **Transaction-date backdating.** Domain research's Essential Business Rule #2 is explicit and load-bearing: "Every transaction belongs to exactly one budget period, determined by its date, not its entry date (a user logging Tuesday's coffee on Thursday should still see it counted in Tuesday's period)." This rule only has teeth if a user can actually choose a date other than today when logging. EXPERIENCE.md's Quick Add has no date field or picker anywhere (IA, Component Patterns, and both Add-Expense flows all imply every entry is dated "today" with no exception path). No override note explains this; it should either get an explicit date-entry affordance in Quick Add or an explicit, documented decision that backdating is deferred past V1.
