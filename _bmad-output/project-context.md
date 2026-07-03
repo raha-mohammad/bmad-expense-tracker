@@ -1,8 +1,8 @@
 ---
 project_name: 'bmad-expense-tracker'
 user_name: 'Raha'
-date: '2026-07-02'
-sections_completed: ['technology_stack', 'product_domain_analysis', 'ux_interaction_design', 'development_workflow_rules', 'critical_donts_miss_rules']
+date: '2026-07-03'
+sections_completed: ['technology_stack', 'product_domain_analysis', 'ux_interaction_design', 'prd', 'development_workflow_rules', 'critical_donts_miss_rules']
 existing_patterns_found: 1
 ---
 
@@ -49,6 +49,20 @@ Full UX spec pair — `DESIGN.md` (visual identity) + `EXPERIENCE.md` (behavior/
 - **Accessibility floor: WCAG 2.1 AA**, with concrete commitments (not just a goal) — a primary-tinted focus ring token, computed contrast ratios for all three budget-status pairs (~7:1+), `aria-live` on inline status/error messages, and a non-color checkmark badge on the selected-category state (category selection is the known drop-off point).
 - **Scope confirmed:** no auth/login in V1 (single-user, backend-persisted, not local storage), no dark mode, English only, always-online (no offline queueing), minimal/no decorative motion, mobile-first responsive (desktop scales up, no separate redesign).
 - **Frequent-expenses shelf ordering/cap is still an open implementation detail** — deliberately left unresolved in the UX spec, not a gap to flag as missing.
+
+## PRD Completed (2026-07-03, read before architecture or epics/stories work)
+
+The MVP PRD is finalized at `_bmad-output/planning-artifacts/prds/prd-bmad-expense-tracker-2026-07-03/` (`prd.md` + `addendum.md` for technical-how/rejected-alternative detail). It builds on the PRFAQ, UX spec, and domain/market/technical research rather than re-deciding them — but it resolved several things those docs left ambiguous or open. Key decisions and **overrides/resolutions** agents should know:
+
+- **Budget is a single overall amount per period, not per-Category** — resolves an ambiguity where domain research's general framing ("a budget applies to a category") conflicted with the UX spec's singular "Set Monthly Budget" flow. Category breakdown on the Dashboard is informational only, never separately budgeted.
+- **RESOLVED — no rollover for MVP.** This was flagged in domain research as "the one domain concept worth a deliberate call" — now decided: budgets reset to zero each period, confirmed as a firm exclusion (not a maybe-cut), revisit for v2 based on actual usage.
+- **RESOLVED — testing gate descoped.** The PRFAQ's 5-7 user formal usability test stalled across 3 prior sessions (brainstorming → innovation strategy → PRFAQ). The PRD replaces it with self-dogfooding: Raha using the app personally for real spending is now the validation mechanism (see Success Metrics below), not a pre-launch blocker. Watch for this becoming a 4th stall — it's flagged in the PRD's own Open Questions as a real risk, not assumed solved.
+- **Hosting/persistence is now a stated NFR constraint**, not just an open gap: the system must run on persistent, non-ephemeral storage suitable for long-term personal use. The specific hosting provider/choice is still deferred to the architecture phase.
+- **Success metrics defined for the first time** (none existed upstream — the PRFAQ explicitly had none). Primary: weekly real use, sustained 3+ months. Secondary: sub-5-second quick-add via frequent-expense chip. Counter-metric: don't optimize feature count/breadth at the cost of quick-add's speed or simplicity.
+- **Competitive framing sharpened:** market research (2026-07-02) found no competitor combining fast manual entry with non-shaming lapse recovery — but a later PRFAQ-stage research pass (never folded back into the market research doc itself) found **Koody** to be a near-exact positioning match. Differentiation on the non-shaming axis remains an unproven hypothesis, tracked via dogfooding, not a pre-launch blocker.
+- **Dashboard also shows days remaining in the current period** alongside budget status (surfaced from EXPERIENCE.md during PRD reconciliation — a real UX detail that hadn't been captured here before).
+- **Required-description field is confirmed again**, with its rationale now explicit in the PRD: it deliberately overrides market/domain research's "keep description optional for speed" recommendation, reconciled via the frequent-expense shelf (chips pre-fill description, so only new/one-off entries pay the typing cost).
+- **`addendum.md` now holds technical-how detail** the architecture phase should read: stack wiring pitfalls (CORS, DTOs, exception handler, layering — already listed above, now with a home), monolith architecture shape, the deferred auth/JWT branch point, and the full copy-tone (shame vs. guilt) rationale behind the red-banner color override.
 
 ## Critical Implementation Rules
 
