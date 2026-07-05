@@ -41,7 +41,7 @@
 # - Retrospective appends its action items to action_items; sprint-status surfaces open ones
 
 generated: 2026-07-03
-last_updated: 2026-07-05 (Story 1.1 done)
+last_updated: 2026-07-05 (Story 1.2 done)
 project: bmad-expense-tracker
 project_key: NOKEY
 tracking_system: file-system
@@ -50,7 +50,7 @@ story_location: _bmad-output/implementation-artifacts
 development_status:
   epic-1: in-progress
   1-1-project-scaffolding-and-default-categories: done
-  1-2-manual-transaction-entry: backlog
+  1-2-manual-transaction-entry: done
   1-3-frequent-expense-chip-logging: backlog
   1-4-dashboard-derived-totals-and-category-breakdown: backlog
   1-5-set-and-edit-monthly-budget: backlog

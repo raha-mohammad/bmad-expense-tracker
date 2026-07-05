@@ -39,9 +39,17 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
-  --radius-lg: var(--radius);
+  --color-chip-bg: var(--chip-bg);
+  --color-category-selected-bg: var(--category-selected-bg);
+  --color-budget-safe: var(--budget-safe);
+  --color-budget-safe-bg: var(--budget-safe-bg);
+  --color-budget-warning: var(--budget-warning);
+  --color-budget-warning-bg: var(--budget-warning-bg);
+  --color-budget-danger: var(--budget-danger);
+  --color-budget-danger-bg: var(--budget-danger-bg);
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 20px;
   --radius-xl: calc(var(--radius) * 1.4);
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
@@ -49,14 +57,17 @@
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
+  /* Calm Harbor brand layer (DESIGN.md) on top of shadcn defaults - background, primary,
+     card, border and ring are overridden; unlisted tokens (popover, secondary, muted, accent,
+     destructive, input, chart-*) intentionally inherit shadcn's defaults per DESIGN.md. */
+  --background: #F5F9FC;
+  --foreground: #111827;
+  --card: #FFFFFF;
+  --card-foreground: #111827;
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
+  --primary: #2563EB;
+  --primary-foreground: #FFFFFF;
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
   --muted: oklch(0.97 0 0);
@@ -64,9 +75,17 @@
   --accent: oklch(0.97 0 0);
   --accent-foreground: oklch(0.205 0 0);
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
+  --border: #D1D5DB;
   --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
+  --ring: rgba(37, 99, 235, .35);
+  --chip-bg: #EFF6FF;
+  --category-selected-bg: #DBEAFE;
+  --budget-safe: #065F46;
+  --budget-safe-bg: #ECFDF5;
+  --budget-warning: #92400E;
+  --budget-warning-bg: #FFFBEB;
+  --budget-danger: #991B1B;
+  --budget-danger-bg: #FEF2F2;
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);

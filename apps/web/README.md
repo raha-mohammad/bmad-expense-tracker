@@ -1,5 +1,15 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Environment Variables
+
+Create a `.env.local` (gitignored) with the backend's base URL:
+
+```bash
+NEXT_PUBLIC_API_BASE_URL=http://localhost:8080
+```
+
+This must be `NEXT_PUBLIC_`-prefixed since `lib/api.ts` calls it from client-side code. In production, set it to the deployed `apps/api` origin.
+
 ## Getting Started
 
 First, run the development server:
