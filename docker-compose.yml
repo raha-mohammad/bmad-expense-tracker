@@ -1,0 +1,22 @@
+services:
+  postgres:
+    image: postgres:18.4
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: expense_tracker
+      POSTGRES_USER: expense_tracker
+      POSTGRES_PASSWORD: expense_tracker
+    ports:
+      - "5432:5432"
+    volumes:
+      # postgres:18+ images store data in a pg_ctlcluster-compatible layout and expect the
+      # mount at /var/lib/postgresql (not .../data) - mounting at .../data crashes the container.
+      - pgdata:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U expense_tracker -d expense_tracker"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  pgdata:
