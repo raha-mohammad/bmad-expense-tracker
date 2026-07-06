@@ -4,12 +4,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.bmad.expensetracker.dto.CreateTransactionRequest;
+import com.bmad.expensetracker.dto.FrequentExpenseDto;
 import com.bmad.expensetracker.dto.TransactionDto;
 import com.bmad.expensetracker.entity.Category;
 import com.bmad.expensetracker.repository.CategoryRepository;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -36,6 +38,23 @@ class TransactionServiceTest {
 
     private Category transportCategory() {
         return categoryRepository.findByNameIgnoreCase("Transport").orElseThrow();
+    }
+
+    private Category shoppingCategory() {
+        return categoryRepository.findByNameIgnoreCase("Shopping").orElseThrow();
+    }
+
+    private Category billsCategory() {
+        return categoryRepository.findByNameIgnoreCase("Bills").orElseThrow();
+    }
+
+    private Category entertainmentCategory() {
+        return categoryRepository.findByNameIgnoreCase("Entertainment").orElseThrow();
+    }
+
+    private void logTransaction(Category category, String amount, String description) {
+        transactionService.createTransaction(
+                new CreateTransactionRequest(new BigDecimal(amount), category.getId(), description, null));
     }
 
     // AD-9: omitting transactionDate defaults to "today" in Asia/Kolkata, computed server-side.
@@ -112,5 +131,80 @@ class TransactionServiceTest {
                 new CreateTransactionRequest(new BigDecimal("40.00"), transportCategory().getId(), "Bus", today));
 
         assertThat(transactionService.getLastUsedCategoryId()).isEqualTo(transportCategory().getId());
+    }
+
+    // FR-1/AC6: an empty transactions table means no combination has ever repeated - returns an
+    // empty list, not null and not an exception, so Quick Add can hide the shelf entirely.
+    @Test
+    void getFrequentExpensesReturnsEmptyListWhenNoTransactionsExist() {
+        assertThat(transactionService.getFrequentExpenses()).isEmpty();
+    }
+
+    // FR-1/AC6: "habitual" is defined as having repeated at least once (this story's own ranking
+    // decision) - a combo logged twice qualifies, a one-off combo does not.
+    @Test
+    void getFrequentExpensesOnlyIncludesCombinationsThatHaveRepeated() {
+        logTransaction(foodCategory(), "150.00", "Coffee");
+        logTransaction(foodCategory(), "150.00", "Coffee");
+        logTransaction(transportCategory(), "40.00", "Bus");
+
+        List<FrequentExpenseDto> result = transactionService.getFrequentExpenses();
+
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).categoryId()).isEqualTo(foodCategory().getId());
+        assertThat(result.get(0).amount()).isEqualByComparingTo(new BigDecimal("150.00"));
+        assertThat(result.get(0).description()).isEqualTo("Coffee");
+    }
+
+    // FR-1/AC1: capped at the top 5 by frequency when more than 5 distinct combinations qualify,
+    // ordered by descending count - the lowest-count 6th combination is excluded.
+    @Test
+    void getFrequentExpensesCapsAtFiveOrderedByDescendingFrequency() {
+        seedCombination(foodCategory(), "10.00", "Combo1", 7);
+        seedCombination(transportCategory(), "20.00", "Combo2", 6);
+        seedCombination(shoppingCategory(), "30.00", "Combo3", 5);
+        seedCombination(billsCategory(), "40.00", "Combo4", 4);
+        seedCombination(entertainmentCategory(), "50.00", "Combo5", 3);
+        seedCombination(foodCategory(), "60.00", "Combo6", 2);
+
+        List<FrequentExpenseDto> result = transactionService.getFrequentExpenses();
+
+        assertThat(result).hasSize(5);
+        assertThat(result.stream().map(FrequentExpenseDto::description).toList())
+                .containsExactly("Combo1", "Combo2", "Combo3", "Combo4", "Combo5");
+    }
+
+    private void seedCombination(Category category, String amount, String description, int occurrences) {
+        for (int i = 0; i < occurrences; i++) {
+            logTransaction(category, amount, description);
+        }
+    }
+
+    // Code review decision: description matching is normalized (case-folded, trimmed) so
+    // "Coffee" and " coffee " count as the same repeat purchase, but the displayed description
+    // is the exact literal string of the most-recently-logged transaction, not a normalized form.
+    @Test
+    void getFrequentExpensesNormalizesCaseAndWhitespaceButDisplaysMostRecentCasing() {
+        logTransaction(foodCategory(), "150.00", "Coffee");
+        logTransaction(foodCategory(), "150.00", " coffee ");
+
+        List<FrequentExpenseDto> result = transactionService.getFrequentExpenses();
+
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).description()).isEqualTo(" coffee ");
+    }
+
+    // Code review finding: two combinations tied on both COUNT and MAX(transactionDate) must
+    // still sort deterministically - the final MAX(t.id) DESC tiebreaker resolves this.
+    @Test
+    void getFrequentExpensesBreaksTiesByMostRecentTransactionId() {
+        seedCombination(foodCategory(), "10.00", "ComboA", 3);
+        seedCombination(transportCategory(), "20.00", "ComboB", 3);
+
+        List<FrequentExpenseDto> result = transactionService.getFrequentExpenses();
+
+        assertThat(result).hasSize(2);
+        assertThat(result.get(0).description()).isEqualTo("ComboB");
+        assertThat(result.get(1).description()).isEqualTo("ComboA");
     }
 }

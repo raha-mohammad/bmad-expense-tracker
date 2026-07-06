@@ -1,10 +1,12 @@
 package com.bmad.expensetracker.controller;
 
 import com.bmad.expensetracker.dto.CreateTransactionRequest;
+import com.bmad.expensetracker.dto.FrequentExpenseDto;
 import com.bmad.expensetracker.dto.LastUsedCategoryDto;
 import com.bmad.expensetracker.dto.TransactionDto;
 import com.bmad.expensetracker.service.TransactionService;
 import jakarta.validation.Valid;
+import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -36,5 +38,13 @@ public class TransactionController {
     @GetMapping("/last-category")
     public LastUsedCategoryDto getLastUsedCategory() {
         return new LastUsedCategoryDto(transactionService.getLastUsedCategoryId());
+    }
+
+    // FR-1: server-side ranking of habitual purchases for the Quick Add Frequent-Expenses Shelf -
+    // never derived client-side (AD-1). An empty list is a valid 200 (first-ever use, or no
+    // purchase has repeated yet), not an error.
+    @GetMapping("/frequent")
+    public List<FrequentExpenseDto> getFrequentExpenses() {
+        return transactionService.getFrequentExpenses();
     }
 }

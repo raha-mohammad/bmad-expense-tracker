@@ -41,6 +41,8 @@
   --color-card: var(--card);
   --color-chip-bg: var(--chip-bg);
   --color-category-selected-bg: var(--category-selected-bg);
+  --color-disabled-bg: var(--disabled-bg);
+  --color-disabled-foreground: var(--disabled-foreground);
   --color-budget-safe: var(--budget-safe);
   --color-budget-safe-bg: var(--budget-safe-bg);
   --color-budget-warning: var(--budget-warning);
@@ -80,6 +82,11 @@
   --ring: rgba(37, 99, 235, .35);
   --chip-bg: #EFF6FF;
   --category-selected-bg: #DBEAFE;
+  /* DESIGN.md's disabled-state rule: a real distinct color pair, not just low-opacity (code
+     review finding, Story 1.2) - shared here (code review finding, Story 1.3) so the Quick Add
+     Save button and the Frequent-Expense chip don't each carry their own duplicated hex pair. */
+  --disabled-bg: #E5E7EB;
+  --disabled-foreground: #9CA3AF;
   --budget-safe: #065F46;
   --budget-safe-bg: #ECFDF5;
   --budget-warning: #92400E;

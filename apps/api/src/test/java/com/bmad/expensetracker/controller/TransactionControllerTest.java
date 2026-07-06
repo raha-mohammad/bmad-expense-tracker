@@ -8,11 +8,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.bmad.expensetracker.dto.FrequentExpenseDto;
 import com.bmad.expensetracker.dto.TransactionDto;
 import com.bmad.expensetracker.service.CategoryNotFoundException;
 import com.bmad.expensetracker.service.TransactionService;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
@@ -150,5 +152,31 @@ class TransactionControllerTest {
         mockMvc.perform(get("/api/transactions/last-category"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.categoryId").value(org.hamcrest.Matchers.nullValue()));
+    }
+
+    // AC1: the shelf is populated from this dedicated endpoint's ranked list.
+    @Test
+    void getFrequentExpensesReturnsRankedList() throws Exception {
+        given(transactionService.getFrequentExpenses())
+                .willReturn(List.of(new FrequentExpenseDto(2L, new BigDecimal("150.00"), "Coffee")));
+
+        mockMvc.perform(get("/api/transactions/frequent"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$[0].categoryId").value(2))
+                .andExpect(jsonPath("$[0].amount").value("150.00"))
+                .andExpect(jsonPath("$[0].description").value("Coffee"));
+    }
+
+    // AC6: no habitual purchase yet is a valid empty 200, not an error - lets the frontend hide
+    // the shelf entirely rather than show a broken or placeholder state.
+    @Test
+    void getFrequentExpensesReturnsEmptyListWhenNoneHabitual() throws Exception {
+        given(transactionService.getFrequentExpenses()).willReturn(List.of());
+
+        mockMvc.perform(get("/api/transactions/frequent"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(content().json("[]"));
     }
 }

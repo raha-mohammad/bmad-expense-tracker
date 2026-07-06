@@ -32,6 +32,15 @@ export interface TransactionDto {
   description: string;
 }
 
+// A ranked (category, amount, description) combination Sam has logged repeatedly - not a
+// persisted transaction, so there's no id. Tapping the resulting chip creates a brand new
+// transaction via createTransaction() with these exact preset values.
+export interface FrequentExpenseDto {
+  categoryId: number;
+  amount: string;
+  description: string;
+}
+
 interface ErrorResponseBody {
   error?: { code: string; message: string };
 }
@@ -68,4 +77,8 @@ export function createTransaction(payload: CreateTransactionPayload): Promise<Tr
     method: "POST",
     body: JSON.stringify(payload),
   });
+}
+
+export function getFrequentExpenses(): Promise<FrequentExpenseDto[]> {
+  return request<FrequentExpenseDto[]>("/api/transactions/frequent");
 }

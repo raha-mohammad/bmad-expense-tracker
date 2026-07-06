@@ -4,10 +4,18 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { CategoryIconButton } from "@/components/category-icon-button";
+import { FrequentExpenseShelf } from "@/components/frequent-expense-shelf";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { createTransaction, getCategories, getLastUsedCategory, type CategoryDto } from "@/lib/api";
+import {
+  createTransaction,
+  getCategories,
+  getFrequentExpenses,
+  getLastUsedCategory,
+  type CategoryDto,
+  type FrequentExpenseDto,
+} from "@/lib/api";
 import { cn } from "@/lib/utils";
 
 const SAVE_HINT_ID = "quick-add-save-hint";
@@ -40,6 +48,7 @@ export function QuickAddForm() {
 
   const [categories, setCategories] = useState<CategoryDto[] | null>(null);
   const [loadError, setLoadError] = useState(false);
+  const [frequentExpenses, setFrequentExpenses] = useState<FrequentExpenseDto[] | null>(null);
 
   const [amount, setAmount] = useState("");
   const [categoryId, setCategoryId] = useState<number | null>(null);
@@ -76,6 +85,17 @@ export function QuickAddForm() {
       })
       .catch(() => {
         if (!cancelled) setLoadError(true);
+      });
+
+    // Fetched independently, not via Promise.all with getCategories() above: this is an
+    // optional enhancement (AC6 already expects it to be absent sometimes) that must not block
+    // the essential category-load path (same lesson as the last-used-category fetch below).
+    getFrequentExpenses()
+      .then((chips) => {
+        if (!cancelled) setFrequentExpenses(chips);
+      })
+      .catch(() => {
+        if (!cancelled) setFrequentExpenses([]);
       });
 
     return () => {
@@ -126,9 +146,44 @@ export function QuickAddForm() {
     }
   }
 
+  // AC2/AC7: a second, independent path to the same save action - shares isSavingRef/isSaving/
+  // saveError wholesale with handleSave above rather than a parallel guard, so a chip tap and
+  // manual Save can never race each other into a duplicate Transaction.
+  async function handleChipTap(chip: FrequentExpenseDto) {
+    if (isSavingRef.current) return;
+
+    isSavingRef.current = true;
+    setIsSaving(true);
+    setSaveError(false);
+    try {
+      await createTransaction({
+        amount: chip.amount,
+        categoryId: chip.categoryId,
+        description: chip.description,
+        transactionDate: undefined,
+      });
+      router.push("/");
+    } catch (err) {
+      console.error("Failed to save frequent expense", err);
+      setSaveError(true);
+    } finally {
+      isSavingRef.current = false;
+      setIsSaving(false);
+    }
+  }
+
   return (
     <div className="mx-auto flex w-full max-w-md flex-1 flex-col gap-4 px-4 py-6">
       <h1 className="text-[1.0625rem] font-bold">Add Expense</h1>
+
+      {categories != null && frequentExpenses != null && (
+        <FrequentExpenseShelf
+          chips={frequentExpenses}
+          categories={categories}
+          disabled={isSaving}
+          onTap={handleChipTap}
+        />
+      )}
 
       <div>
         <Label htmlFor="quick-add-amount">Amount</Label>
@@ -208,10 +263,12 @@ export function QuickAddForm() {
           size="icon-lg"
           className={cn(
             "rounded-full",
-            // DESIGN.md's quick-add-save-button spec: disabled is a real, distinct color pair
-            // (#E5E7EB/#9CA3AF), not just a low-opacity primary - low-opacity was tried first
-            // here and didn't read as clearly disabled once actually rendered.
-            !canSave && "bg-[#E5E7EB] text-[#9CA3AF] hover:bg-[#E5E7EB]"
+            // Shared disabled-color token (globals.css) - DESIGN.md's quick-add-save-button spec
+            // requires a real, distinct color pair, not just a low-opacity primary (low-opacity
+            // was tried first here and didn't read as clearly disabled once actually rendered).
+            // Also used by frequent-expense-shelf.tsx's chips (code review finding: extracted to
+            // a shared token instead of duplicated hex).
+            !canSave && "bg-disabled text-disabled-foreground hover:bg-disabled"
           )}
         >
           ✓
